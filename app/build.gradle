@@ -1,0 +1,56 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'com.quick.disarm'
+    compileSdk 35
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        applicationId "com.quick.disarm"
+        minSdk 31
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            // Values retrieved from Ituran server during activation process
+            //buildConfigField "String", "DRIVER_MOBILE_NUMBER", "\"0548040884\""
+            //buildConfigField "int", "CAR_LICENSE_PLATE_ID", "3413856"
+            buildConfigField "String", "CAR_LICENSE_PLATE", "\"76579403\""
+            buildConfigField "String", "CAR_BLUETOOTH_MAC", "\"A4:04:50:44:C1:0F\""
+            buildConfigField "String", "STARLINK_MAC", "\"D0:1F:DD:C2:37:2D\""
+            buildConfigField "int", "STARLINK_SERIAL", "2276181"
+            buildConfigField "String", "ITURAN_CODE", "\"2233\""
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+    implementation libs.security.crypto.v110alpha06
+    implementation libs.gson
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.security.crypto
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}

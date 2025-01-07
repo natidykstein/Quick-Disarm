@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;

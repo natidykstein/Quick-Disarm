@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -134,9 +133,8 @@ public class StarlinkCommandDispatcher {
         StringBuilder stringBuilder = new StringBuilder("[");
         if (paramArrayOfbyte != null) {
             int i = paramArrayOfbyte.length;
-            for (byte b = 0; b < i; b++) {
-                byte b1 = paramArrayOfbyte[b];
-                stringBuilder.append(String.format(Locale.ENGLISH, " %02x", new Object[]{Integer.valueOf(Byte.toUnsignedInt(b1))}));
+            for (byte b1 : paramArrayOfbyte) {
+                stringBuilder.append(String.format(Locale.ENGLISH, " %02x", Byte.toUnsignedInt(b1)));
             }
         }
         stringBuilder.append(" ]");

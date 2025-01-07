@@ -50,10 +50,6 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
 
     /**
      * Check if the connected device address is one of the configured cars bluetooth mac
-     *
-     * @param connectedDeviceAddress
-     * @param configuredCarAddressList
-     * @return
      */
     private String getConnectedBluetoothMac(String connectedDeviceAddress, List<String> configuredCarAddressList) {
         for (String configuredMac : configuredCarAddressList) {

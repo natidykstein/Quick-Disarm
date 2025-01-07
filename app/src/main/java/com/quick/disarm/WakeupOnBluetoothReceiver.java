@@ -31,7 +31,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 final String connectedCarBluetoothMac =
                         getConnectedBluetoothMac(device.getAddress(), bluetoothList);
                 if (connectedCarBluetoothMac != null) {
-                    // Attempt to disarm
+                    // Offload disarming to intent service
                     final Intent serviceIntent = new Intent(context, DisarmService.class);
                     serviceIntent.putExtra(DisarmService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
                     DisarmService.enqueueWork(context, serviceIntent);
@@ -52,9 +52,9 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
      * Check if the connected device address is one of the configured cars bluetooth mac
      */
     private String getConnectedBluetoothMac(String connectedDeviceAddress, List<String> configuredCarAddressList) {
-        for (String configuredMac : configuredCarAddressList) {
-            if (connectedDeviceAddress.equals(configuredMac)) {
-                return configuredMac;
+        for (String carBluetoothMac : configuredCarAddressList) {
+            if (connectedDeviceAddress.equals(carBluetoothMac)) {
+                return carBluetoothMac;
             }
         }
 

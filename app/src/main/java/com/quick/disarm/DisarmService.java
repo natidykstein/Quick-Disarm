@@ -15,6 +15,8 @@ import androidx.core.app.JobIntentService;
 
 import com.quick.disarm.utils.PreferenceCache;
 
+import java.util.Objects;
+
 /**
  * @noinspection deprecation
  */
@@ -49,7 +51,8 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
 
         mDisarmStartTime = System.currentTimeMillis();
 
-        initBluetoothAdapter();
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
             final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
             mConnectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
@@ -58,12 +61,6 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
             Log.e(TAG, "Bluetooth is not supported on this device");
             mWakeLock.release();
         }
-    }
-
-    private void initBluetoothAdapter() {
-        // Initialize Bluetooth adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
     }
 
     @SuppressLint("MissingPermission")
@@ -83,7 +80,7 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
 
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
-        if (newState == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
+        if (Objects.requireNonNull(newState) == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
             Log.d(TAG, "Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }

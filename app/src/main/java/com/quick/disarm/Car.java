@@ -32,10 +32,10 @@ public class Car {
     @Override
     public String toString() {
         return "Car{" +
-                "mLicensePlate='" + mLicensePlate + '\'' +
-                ", mStarlinkMac='" + mStarlinkMac + '\'' +
-                ", mStarLinkSerial=" + mStarlinkSerial +
-                ", mIturanCode='" + mIturanCode + '\'' +
+                "licensePlate='" + mLicensePlate + '\'' +
+                ", starlinkMac='" + mStarlinkMac + '\'' +
+                ", starLinkSerial=" + mStarlinkSerial +
+                ", ituranCode='" + mIturanCode + '\'' +
                 '}';
     }
 }

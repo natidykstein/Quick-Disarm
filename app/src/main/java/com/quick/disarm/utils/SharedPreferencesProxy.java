@@ -18,9 +18,7 @@ import java.util.Set;
 class SharedPreferencesProxy {
     private static final String TAG = SharedPreferencesProxy.class.getSimpleName();
 
-    private final static String SPF_FAILED_TO_CREATE_ENCRYPTED_PREFS = "spf_failed_to_create_encrypted_prefs";
-
-    private SharedPreferences mSharedPref;
+    private final SharedPreferences mSharedPref;
 
     public SharedPreferencesProxy(Context context, String prefName) {
         mSharedPref = createSecuredSharedPreferences(context, prefName);

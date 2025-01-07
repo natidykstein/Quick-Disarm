@@ -23,9 +23,6 @@ import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.utils.PreferenceCache;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * PENDING:
@@ -111,12 +108,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             Log.d(TAG, "No cars configured - adding cars...");
 
             final Car myXpengG9 =
-                    new Car(BuildConfig.CAR_LICENSE_PLATE, BuildConfig.STARLINK_MAC, BuildConfig.STARLINK_SERIAL, BuildConfig.ITURAN_CODE);
-            PreferenceCache.get(this).putCar(BuildConfig.CAR_BLUETOOTH_MAC, myXpengG9);
+                    new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
+            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
             Log.d(TAG, "Added " + myXpengG9);
 
             final Car fakeCar =
-                    new Car("12345678", BuildConfig.STARLINK_MAC, BuildConfig.STARLINK_SERIAL, "1234");
+                    new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
             PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
 
             Log.d(TAG, "Added " + fakeCar);
@@ -143,13 +140,14 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         // PENDING: In the activity we need to allow selecting the car to which we want to connect and disarm
         final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothList().get(0);
         final Car connectedCar = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
-
-        final BluetoothDevice device = getStarlinkDevice();
+        final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
         device.connectGatt(this, false, new StartLinkGattCallback(this, connectedCar), BluetoothDevice.TRANSPORT_LE);
     }
 
-    private BluetoothDevice getStarlinkDevice() {
-        return Build.VERSION.SDK_INT >= 33 ? bluetoothAdapter.getRemoteLeDevice(BuildConfig.STARLINK_MAC, BluetoothDevice.ADDRESS_TYPE_PUBLIC) : bluetoothAdapter.getRemoteDevice(BuildConfig.STARLINK_MAC);
+    private BluetoothDevice getStarlinkDevice(String starlinkMac) {
+        return Build.VERSION.SDK_INT >= 33 ?
+                bluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) :
+                bluetoothAdapter.getRemoteDevice(starlinkMac);
     }
 
     @Override

@@ -71,12 +71,14 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
         final StartLinkGattCallback bluetoothGattCallback =
                 new StartLinkGattCallback(this, connectedCar);
 
-        final BluetoothDevice device = getStarlinkDevice();
+        final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
         device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 
-    private BluetoothDevice getStarlinkDevice() {
-        return Build.VERSION.SDK_INT >= 33 ? mBluetoothAdapter.getRemoteLeDevice(BuildConfig.STARLINK_MAC, BluetoothDevice.ADDRESS_TYPE_PUBLIC) : mBluetoothAdapter.getRemoteDevice(BuildConfig.STARLINK_MAC);
+    private BluetoothDevice getStarlinkDevice(String starlinkMac) {
+        return Build.VERSION.SDK_INT >= 33 ?
+                mBluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) :
+                mBluetoothAdapter.getRemoteDevice(starlinkMac);
     }
 
     @Override

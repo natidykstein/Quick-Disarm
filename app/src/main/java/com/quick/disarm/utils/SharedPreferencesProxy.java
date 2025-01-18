@@ -9,6 +9,7 @@ import androidx.security.crypto.MasterKey;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.quick.disarm.infra.Utils;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

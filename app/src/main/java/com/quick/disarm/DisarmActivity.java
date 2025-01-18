@@ -26,13 +26,9 @@ import com.quick.disarm.utils.PreferenceCache;
 
 /**
  * PENDING:
- *  1. Add support for multiple cars
- *    (Save a list of Startlink MACs and map each MAC to an object representing
- *    the car data like disarm code, car's bluetooth mac)
- *  2. Store sensitive data in encrypted shared prefs
  *  3. Add menu item in DisarmActivity to manage car data
- *  4. Run Proguard on the code
  *  5. Display list of currently configured cars (read-only)
+ *  6. Add setup wizard that go through Ituran registration process to register device UUID and get starlink serial+mac
  * <p>
  * Add 'Add Car' button [Deferred since it will allow reuse of the app without permission]
  */

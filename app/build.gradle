@@ -30,6 +30,7 @@ android {
             buildConfigField "String", "STARLINK_MAC", "\"D0:1F:DD:C2:37:2D\""
             buildConfigField "int", "STARLINK_SERIAL", "2276181"
             buildConfigField "String", "ITURAN_CODE", "\"2233\""
+            buildConfigField("boolean", "LOGS_ENABLED", "true")
         }
 
         release {
@@ -48,6 +49,8 @@ android {
             // the Android Gradle plugin. To learn more, go to the section about
             // R8 configuration files.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField("boolean", "LOGS_ENABLED", "true")
         }
     }
     compileOptions {
@@ -66,4 +69,6 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    implementation libs.volley
+    implementation libs.rootbeer.lib
 }

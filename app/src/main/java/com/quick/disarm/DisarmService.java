@@ -8,11 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 
+import com.quick.disarm.infra.ILog;
 import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.Objects;
@@ -21,7 +21,7 @@ import java.util.Objects;
  * @noinspection deprecation
  */
 public class DisarmService extends JobIntentService implements DisarmStateListener {
-    private static final String TAG = "BluetoothService";
+    private static final String TAG = DisarmService.class.getSimpleName();
 
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
 
@@ -31,15 +31,13 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
     private PowerManager.WakeLock mWakeLock;
     private long mDisarmStartTime;
 
-    private Car mConnectedCar;
-
     public static void enqueueWork(Context context, Intent intent) {
         enqueueWork(context, DisarmService.class, JOB_ID, intent);
     }
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        Log.d(TAG, "Starting onHandleWork...");
+        ILog.d("Starting onHandleWork...");
 
         // Acquire a wake lock to keep the CPU running
         final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -55,37 +53,34 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
             final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
-            mConnectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
-            connectToDevice(mConnectedCar);
+            final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
+            connectToDevice(connectedCar);
         } else {
-            Log.e(TAG, "Bluetooth is not supported on this device");
+            ILog.e("Bluetooth is not supported on this device");
             mWakeLock.release();
         }
     }
 
     @SuppressLint("MissingPermission")
     private void connectToDevice(Car connectedCar) {
-        final StartLinkGattCallback bluetoothGattCallback =
-                new StartLinkGattCallback(this, connectedCar);
+        final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, connectedCar);
 
         final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
         device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 
     private BluetoothDevice getStarlinkDevice(String starlinkMac) {
-        return Build.VERSION.SDK_INT >= 33 ?
-                mBluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) :
-                mBluetoothAdapter.getRemoteDevice(starlinkMac);
+        return Build.VERSION.SDK_INT >= 33 ? mBluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) : mBluetoothAdapter.getRemoteDevice(starlinkMac);
     }
 
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
         if (Objects.requireNonNull(newState) == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
-            Log.d(TAG, "Attempting to disarm...");
+            ILog.d("Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }
         if (newState == DisarmStatus.DISARMED) {
-            Log.d(TAG, "Successfully disarmed device in " + (System.currentTimeMillis() - mDisarmStartTime) + "ms");
+            ILog.d("Successfully disarmed device in " + (System.currentTimeMillis() - mDisarmStartTime) + "ms");
             mWakeLock.release();
         }
     }

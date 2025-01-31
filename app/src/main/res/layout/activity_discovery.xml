@@ -12,6 +12,14 @@
         android:enabled="false"
         android:text="Connecting to device..." />
 
+    <Button
+        android:id="@+id/add_car_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/disarm_button"
+        android:layout_centerHorizontal="true"
+        android:text="Add car" />
+
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleLarge"

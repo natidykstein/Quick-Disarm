@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -21,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.quick.disarm.add.DetectCarBluetoothActivity;
+import com.quick.disarm.infra.ILog;
 import com.quick.disarm.utils.PreferenceCache;
 
 
@@ -35,14 +36,17 @@ import com.quick.disarm.utils.PreferenceCache;
 @SuppressLint("MissingPermission")
 public class DisarmActivity extends AppCompatActivity implements DisarmStateListener {
 
-    private static final String TAG = DisarmActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int BLUETOOTH_PERMISSIONS_REQUEST = 1000;
+    private static final int PERMISSIONS_REQUEST = 1000;
+
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+
 
     private BluetoothAdapter bluetoothAdapter;
-    private ProgressBar mProgressBar;
+
+    private Button mAddCarButton;
     private Button mDisarmButton;
-    private boolean mHasRequiredPermissions;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,60 +64,41 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             return;
         }
 
-        // Initialize Scan Button and ProgressBar
+        mAddCarButton = findViewById(R.id.add_car_button);
+        mAddCarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
+                startActivity(startDetectActivityIntent);
+            }
+        });
+
         mDisarmButton = findViewById(R.id.disarm_button);
         mDisarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mHasRequiredPermissions) {
-                    mDisarmButton.setEnabled(false);
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    mDisarmButton.setText("DISARMING...");
-                    StarlinkCommandDispatcher.get().dispatchDisarmCommand();
-                } else {
-                    mDisarmButton.setText("Requesting permissions...");
-                    mDisarmButton.setEnabled(false);
-                    Log.d(TAG, "Missing required permissions - asking now...");
-                    ActivityCompat.requestPermissions(DisarmActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}, BLUETOOTH_PERMISSIONS_REQUEST);
-                }
+                mDisarmButton.setEnabled(false);
+                mProgressBar.setVisibility(View.VISIBLE);
+                mDisarmButton.setText("DISARMING...");
+                StarlinkCommandDispatcher.get().dispatchDisarmCommand();
             }
         });
 
         mProgressBar = findViewById(R.id.progress_bar);
 
         if (hasRequiredPermissions()) {
-            mHasRequiredPermissions = true;
-            connectToDevice();
-        } else {
             setDisarmStatus(DisarmStatus.READY_TO_CONNECT);
-            // We don't have the required permissions yet - ask them when the user presses the disarm button
-            Log.d(TAG, "Missing required permissions - postponing permissions request to disarm button");
+        } else {
+            requestNeededPermissions();
         }
 
         // Check if we need to setup the cars data
         initCarsIfNeeded();
     }
 
-    /**
-     * Keep car data hardcoded intentionally to prevent unauthorized reuse
-     * of the APK by others
-     * This method should be configured per APK distribution
-     */
-    private void initCarsIfNeeded() {
-        if (PreferenceCache.get(this).getCarBluetoothList().isEmpty()) {
-            Log.d(TAG, "No cars configured - adding cars...");
-
-            final Car myXpengG9 =
-                    new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
-            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
-            Log.d(TAG, "Added " + myXpengG9);
-
-            final Car fakeCar =
-                    new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
-            PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
-
-            Log.d(TAG, "Added " + fakeCar);
-        }
+    private void requestNeededPermissions() {
+        ILog.d("Missing required permissions - asking now...");
+        ActivityCompat.requestPermissions(DisarmActivity.this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST);
     }
 
     private boolean hasRequiredPermissions() {
@@ -130,6 +115,26 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         return ContextCompat.checkSelfPermission(DisarmActivity.this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Keep car data hardcoded intentionally to prevent unauthorized reuse
+     * of the APK by others
+     * This method should be configured per APK distribution
+     */
+    private void initCarsIfNeeded() {
+        if (PreferenceCache.get(this).getCarBluetoothList().isEmpty()) {
+            ILog.d("No cars configured - adding cars...");
+
+            final Car myXpengG9 = new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
+            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
+            ILog.d("Added " + myXpengG9);
+
+            final Car fakeCar = new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
+            PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
+
+            ILog.d("Added " + fakeCar);
+        }
+    }
+
     private void connectToDevice() {
         setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
 
@@ -141,9 +146,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private BluetoothDevice getStarlinkDevice(String starlinkMac) {
-        return Build.VERSION.SDK_INT >= 33 ?
-                bluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) :
-                bluetoothAdapter.getRemoteDevice(starlinkMac);
+        return Build.VERSION.SDK_INT >= 33 ? bluetoothAdapter.getRemoteLeDevice(starlinkMac, BluetoothDevice.ADDRESS_TYPE_PUBLIC) : bluetoothAdapter.getRemoteDevice(starlinkMac);
     }
 
     @Override
@@ -154,11 +157,14 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == BLUETOOTH_PERMISSIONS_REQUEST) {
+        if (requestCode == PERMISSIONS_REQUEST) {
             if (grantResults.length == 3 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                connectToDevice();
+                ILog.d("Got required permissions");
+                setDisarmStatus(DisarmStatus.READY_TO_CONNECT);
             } else {
                 Toast.makeText(this, "Failed to acquire needed permissions", Toast.LENGTH_SHORT).show();
+                ILog.d("Failed to get required permissions - exiting...");
+                finish();
             }
         }
     }

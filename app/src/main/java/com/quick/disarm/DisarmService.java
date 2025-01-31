@@ -21,8 +21,6 @@ import java.util.Objects;
  * @noinspection deprecation
  */
 public class DisarmService extends JobIntentService implements DisarmStateListener {
-    private static final String TAG = DisarmService.class.getSimpleName();
-
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
 
     private static final int JOB_ID = 1;

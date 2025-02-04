@@ -8,6 +8,7 @@ import com.quick.disarm.infra.network.UriBuilder;
 import com.quick.disarm.infra.network.volley.request.GsonElementRequest;
 import com.quick.disarm.model.ActivationAnswer;
 import com.quick.disarm.model.IsRegisteredAnswer;
+import com.quick.disarm.model.SerializationAnswer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class IturanServerAPI {
 
     private static final String CHECK_IF_REGISTERED = "MBKcheckIfRegistered";
     private static final String ACTIVATION = "MBKactivation";
+    private static final String SERIALIZATION = "MBKSerializationRequest";
 
 
     private static volatile IturanServerAPI sInstance;
@@ -56,41 +58,34 @@ public class IturanServerAPI {
         return SERVER_BASE_URL;
     }
 
-    public Request<AppResponse<IsRegisteredAnswer>> checkIsRegisteredDriver(String plate,
-                                                                            String phoneNumber,
-                                                                            Response.Listener<AppResponse<IsRegisteredAnswer>> responseListener,
-                                                                            Response.ErrorListener errorListener) {
+    public Request<AppResponse<IsRegisteredAnswer>> checkIsRegisteredDriver(String plate, String phoneNumber, Response.Listener<AppResponse<IsRegisteredAnswer>> responseListener, Response.ErrorListener errorListener) {
         final Map<String, String> queryParams = new HashMap<>();
         queryParams.put("Plate", plate);
         queryParams.put("PhoneNumber", phoneNumber);
         final String url = UriBuilder.build(getServerUrl(), new String[]{CHECK_IF_REGISTERED}, queryParams).toString();
-        return new GsonElementRequest<>(
-                IsRegisteredAnswer.class,
-                Request.Method.GET,
-                url,
-                null,
-                responseListener,
-                errorListener);
+        return new GsonElementRequest<>(IsRegisteredAnswer.class, Request.Method.GET, url, null, responseListener, errorListener);
     }
 
-    public Request<AppResponse<ActivationAnswer>> verifyDriver(String plate,
-                                                               String phoneNumber,
-                                                               String deviceUuid,
-                                                               Response.Listener<AppResponse<ActivationAnswer>> responseListener,
-                                                               Response.ErrorListener errorListener) {
+    public Request<AppResponse<ActivationAnswer>> verifyDriver(String plate, String phoneNumber, String deviceUuid, Response.Listener<AppResponse<ActivationAnswer>> responseListener, Response.ErrorListener errorListener) {
         final Map<String, String> queryParams = new HashMap<>();
         queryParams.put("Plate", plate);
         queryParams.put("PhoneNumber", phoneNumber);
         queryParams.put("Key", deviceUuid);
 
         final String url = UriBuilder.build(getServerUrl(), new String[]{ACTIVATION}, queryParams).toString();
-        final GsonElementRequest<ActivationAnswer> request = new GsonElementRequest<>(
-                ActivationAnswer.class,
-                Request.Method.GET,
-                url,
-                null,
-                responseListener,
-                errorListener);
+        final GsonElementRequest<ActivationAnswer> request = new GsonElementRequest<>(ActivationAnswer.class, Request.Method.GET, url, null, responseListener, errorListener);
+
+        return VolleyRequestManager.INSTANCE.enqueueRequest(sContext, request);
+    }
+
+    public Request<AppResponse<SerializationAnswer>> validateSmsVerificationCode(String plate, String phoneNumber, String otpCode, Response.Listener<AppResponse<SerializationAnswer>> responseListener, Response.ErrorListener errorListener) {
+        final Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("Plate", plate);
+        queryParams.put("PhoneNumber", phoneNumber);
+        queryParams.put("OTPcode", otpCode);
+
+        final String url = UriBuilder.build(getServerUrl(), new String[]{SERIALIZATION}, queryParams).toString();
+        final GsonElementRequest<SerializationAnswer> request = new GsonElementRequest<>(SerializationAnswer.class, Request.Method.GET, url, null, responseListener, errorListener);
 
         return VolleyRequestManager.INSTANCE.enqueueRequest(sContext, request);
     }

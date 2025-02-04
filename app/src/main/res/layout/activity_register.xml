@@ -18,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Car License Plate"
+            android:maxLength="8"
             android:inputType="number" />
 
         <EditText
@@ -25,6 +26,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Phone Number"
+            android:maxLength="10"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/editTextIturanCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ituran Code"
+            android:maxLength="4"
             android:inputType="phone" />
 
         <Button

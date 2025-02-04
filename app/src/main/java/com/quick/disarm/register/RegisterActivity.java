@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.VolleyError;
+import com.quick.disarm.Car;
 import com.quick.disarm.QuickDisarmApplication;
 import com.quick.disarm.R;
 import com.quick.disarm.infra.ILog;
@@ -30,6 +31,9 @@ import com.quick.disarm.infra.network.volley.AppResponse;
 import com.quick.disarm.infra.network.volley.IturanServerAPI;
 import com.quick.disarm.infra.network.volley.VolleyResponseListener;
 import com.quick.disarm.model.ActivationAnswer;
+import com.quick.disarm.model.ModelUtils;
+import com.quick.disarm.model.SerializationAnswer;
+import com.quick.disarm.utils.PreferenceCache;
 
 public class RegisterActivity extends AppCompatActivity {
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
@@ -38,6 +42,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText editTextLicensePlate;
     private EditText editTextPhoneNumber;
+    private EditText editTextIturanCode;
+
     private EditText editTextVerificationCode;
     private TextView textViewSummary;
     private View page1;
@@ -45,6 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
     private View page3;
     private String licensePlate;
     private String phoneNumber;
+    private String ituranCode;
     private String verificationCode;
 
     @Override
@@ -58,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
         page3 = findViewById(R.id.page3);
         editTextLicensePlate = findViewById(R.id.editTextLicensePlate);
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
+        editTextIturanCode = findViewById(R.id.editTextIturanCode);
         editTextVerificationCode = findViewById(R.id.editTextVerificationCode);
         textViewSummary = findViewById(R.id.textViewSummary);
 
@@ -73,8 +81,9 @@ public class RegisterActivity extends AppCompatActivity {
         buttonNext1.setOnClickListener(view -> {
             licensePlate = editTextLicensePlate.getText().toString().trim();
             phoneNumber = editTextPhoneNumber.getText().toString().trim();
+            ituranCode = editTextIturanCode.getText().toString().trim();
             if (validatePage1()) {
-                sendSmsVerificationCode(licensePlate, phoneNumber);
+                sendSmsVerificationCode();
             }
         });
     }
@@ -88,22 +97,25 @@ public class RegisterActivity extends AppCompatActivity {
             editTextPhoneNumber.setError("Phone number is required");
             return false;
         }
+        if (TextUtils.isEmpty(ituranCode)) {
+            editTextIturanCode.setError("Ituran code is required");
+            return false;
+        }
         return true;
     }
 
-    private void sendSmsVerificationCode(String licensePlate, String phoneNumber) {
-        // PENDING: access server for sending SMS verification code
-        Log.d("RegisterActivity", "Sending SMS verification code to " + phoneNumber);
+    private void sendSmsVerificationCode() {
+        Log.d("RegisterActivity", "Sending SMS verification code to " + phoneNumber + "...");
 
         final VolleyResponseListener<AppResponse<ActivationAnswer>> activationResponseListener = new VolleyResponseListener<>() {
             @Override
             protected void onResponse(AppResponse<ActivationAnswer> response, boolean secondCallback) {
-                final ActivationAnswer activationAnswer = response.getData();
-                ILog.d("Activation Answer = " + activationAnswer);
-                if (activationAnswer.getDidRecognizerOwner()) {
+                final ActivationAnswer answer = response.getData();
+                ILog.d("Activation answer = " + answer);
+                if (ModelUtils.isValid(answer.getReturnError())) {
                     showPage2();
                 } else {
-                    editTextLicensePlate.setText(activationAnswer.getReturnError());
+                    editTextLicensePlate.setError(answer.getReturnError());
                 }
             }
 
@@ -123,13 +135,44 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupPage2() {
-        Button buttonNext2 = findViewById(R.id.buttonNext2);
+        final Button buttonNext2 = findViewById(R.id.buttonNext2);
         buttonNext2.setOnClickListener(view -> {
             verificationCode = editTextVerificationCode.getText().toString().trim();
             if (validatePage2()) {
-                showPage3();
+                validateSmsVerificationCode();
             }
         });
+    }
+
+    private void validateSmsVerificationCode() {
+        Log.d("RegisterActivity", "Validating SMS verification code " + verificationCode + "...");
+
+        final VolleyResponseListener<AppResponse<SerializationAnswer>> serializationResponseListener = new VolleyResponseListener<>() {
+            @Override
+            protected void onResponse(AppResponse<SerializationAnswer> response, boolean secondCallback) {
+                final SerializationAnswer answer = response.getData();
+                ILog.d("Serialization answer = " + answer);
+                if (ModelUtils.isValid(answer.getReturnError())) {
+                    saveDriverData(answer.getStarlinkMacAddress(), answer.getStarlinkSerial());
+                    showPage3();
+                } else {
+                    editTextVerificationCode.setError(answer.getReturnError());
+                }
+            }
+
+            @Override
+            protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
+
+            }
+        };
+        IturanServerAPI.get().validateSmsVerificationCode(licensePlate, phoneNumber, verificationCode, serializationResponseListener, serializationResponseListener);
+    }
+
+    private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
+        final Car car = new Car(licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
+        final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH);
+        PreferenceCache.get(this).putCar(carBluetoothMac, car);
+        ILog.d("Added " + car);
     }
 
     private boolean validatePage2() {
@@ -143,7 +186,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void showPage3() {
         page2.setVisibility(View.GONE);
         page3.setVisibility(View.VISIBLE);
-        textViewSummary.setText("License Plate: " + licensePlate + "\nPhone Number: " + phoneNumber + "\nVerification Code: " + verificationCode);
+        textViewSummary.setText("Successfully registered\n\nLicense Plate: " + licensePlate + "\nPhone Number: " + phoneNumber);
     }
 
     @Override

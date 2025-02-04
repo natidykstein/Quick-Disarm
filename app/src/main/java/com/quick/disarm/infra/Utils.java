@@ -17,7 +17,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
@@ -52,10 +51,8 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -501,22 +498,6 @@ public class Utils {
     @SuppressWarnings("deprecation")
     private static void getMetricsBeforeApi30(Context context, DisplayMetrics displayMetrics) {
         getDisplay(context).getMetrics(displayMetrics);
-    }
-
-    public static Drawable getTopAlignedTintedDrawable(Context context,
-                                                       @DrawableRes int sourceDrawableResource,
-                                                       @ColorRes int colorResource,
-                                                       int padding) {
-        final Drawable tintedDrawable = getTintedDrawable(context, sourceDrawableResource, colorResource);
-        final TopAlignedCompoundDrawable gravityDrawable = new TopAlignedCompoundDrawable(tintedDrawable, padding);
-        tintedDrawable.setBounds(0, 0, tintedDrawable.getIntrinsicWidth(), tintedDrawable.getIntrinsicHeight());
-        gravityDrawable.setBounds(0, 0, tintedDrawable.getIntrinsicWidth(), tintedDrawable.getIntrinsicHeight());
-        return gravityDrawable;
-    }
-
-    public static Drawable getTintedDrawable(Context context, @DrawableRes int sourceDrawableResource, @ColorRes int colorResource) {
-        final Drawable unwrappedDrawable = AppCompatResources.getDrawable(context, sourceDrawableResource);
-        return getTintedDrawable(context, unwrappedDrawable, colorResource);
     }
 
     public static Drawable getTintedDrawable(Context context, Drawable sourceDrawable, @ColorRes int colorResource) {
@@ -1036,55 +1017,8 @@ public class Utils {
         }
     }
 
-    // PENDING: This code was added to achieve top-left alignment of textview drawable when it's multi-lined
-    // PENDING: I think it would be better to replace this code by using a simpler imageview and textview layout
-    //https://stackoverflow.com/questions/59115360/how-to-set-drawable-in-top-left-in-a-textview
-    private static class TopAlignedCompoundDrawable extends Drawable {
-        private final Drawable mInnerDrawable;
-        private final int mPadding;
-
-        public TopAlignedCompoundDrawable(Drawable drawable, int padding) {
-            mInnerDrawable = drawable;
-            mPadding = padding;
-        }
-
-        @Override
-        public int getIntrinsicWidth() {
-            return mInnerDrawable.getIntrinsicWidth();
-        }
-
-        @Override
-        public int getIntrinsicHeight() {
-            return mInnerDrawable.getIntrinsicHeight();
-        }
-
-        @Override
-        public void draw(Canvas canvas) {
-            @SuppressLint("CanvasSize") final int halfCanvas = canvas.getHeight() / 2;
-            final int halfDrawable = (mInnerDrawable.getIntrinsicHeight() / 2) + mPadding;
-
-            // align to top
-            canvas.save();
-            canvas.translate(0, -halfCanvas + halfDrawable);
-            mInnerDrawable.draw(canvas);
-            canvas.restore();
-        }
-
-        @Override
-        public void setAlpha(int alpha) {
-            mInnerDrawable.setAlpha(alpha);
-        }
-
-        @Override
-        public void setColorFilter(@Nullable ColorFilter colorFilter) {
-            mInnerDrawable.setColorFilter(colorFilter);
-        }
-
-        @SuppressWarnings("deprecation")
-        // This method no longer in use but we still need to override it if we want to extend Drawable
-        @Override
-        public int getOpacity() {
-            return mInnerDrawable.getOpacity();
-        }
+    // This is the way Ituran is working - so we use it too
+    public static String getDeviceUuid(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }

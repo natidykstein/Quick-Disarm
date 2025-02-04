@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
+import com.quick.disarm.infra.network.volley.IturanServerAPI;
+
 public final class QuickDisarmApplication extends Application {
 
     @SuppressLint("StaticFieldLeak")
@@ -18,5 +20,7 @@ public final class QuickDisarmApplication extends Application {
         super.onCreate();
 
         context = getApplicationContext();
+
+        IturanServerAPI.init(context);
     }
 }

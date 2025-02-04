@@ -6,6 +6,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.quick.disarm.infra.network.UriBuilder;
 import com.quick.disarm.infra.network.volley.request.GsonElementRequest;
+import com.quick.disarm.model.ActivationAnswer;
 import com.quick.disarm.model.IsRegisteredAnswer;
 
 import java.util.HashMap;
@@ -55,10 +56,10 @@ public class IturanServerAPI {
         return SERVER_BASE_URL;
     }
 
-    public Request<AppResponse<IsRegisteredAnswer>> getCallCommentsAndChatMessagesRequest(String plate,
-                                                                                          String phoneNumber,
-                                                                                          Response.Listener<AppResponse<IsRegisteredAnswer>> responseListener,
-                                                                                          Response.ErrorListener errorListener) {
+    public Request<AppResponse<IsRegisteredAnswer>> checkIsRegisteredDriver(String plate,
+                                                                            String phoneNumber,
+                                                                            Response.Listener<AppResponse<IsRegisteredAnswer>> responseListener,
+                                                                            Response.ErrorListener errorListener) {
         final Map<String, String> queryParams = new HashMap<>();
         queryParams.put("Plate", plate);
         queryParams.put("PhoneNumber", phoneNumber);
@@ -70,5 +71,27 @@ public class IturanServerAPI {
                 null,
                 responseListener,
                 errorListener);
+    }
+
+    public Request<AppResponse<ActivationAnswer>> verifyDriver(String plate,
+                                                               String phoneNumber,
+                                                               String deviceUuid,
+                                                               Response.Listener<AppResponse<ActivationAnswer>> responseListener,
+                                                               Response.ErrorListener errorListener) {
+        final Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("Plate", plate);
+        queryParams.put("PhoneNumber", phoneNumber);
+        queryParams.put("Key", deviceUuid);
+
+        final String url = UriBuilder.build(getServerUrl(), new String[]{ACTIVATION}, queryParams).toString();
+        final GsonElementRequest<ActivationAnswer> request = new GsonElementRequest<>(
+                ActivationAnswer.class,
+                Request.Method.GET,
+                url,
+                null,
+                responseListener,
+                errorListener);
+
+        return VolleyRequestManager.INSTANCE.enqueueRequest(sContext, request);
     }
 }

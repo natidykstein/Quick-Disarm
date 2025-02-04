@@ -21,7 +21,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.VolleyError;
+import com.quick.disarm.QuickDisarmApplication;
 import com.quick.disarm.R;
+import com.quick.disarm.infra.ILog;
+import com.quick.disarm.infra.Utils;
+import com.quick.disarm.infra.network.volley.AppResponse;
+import com.quick.disarm.infra.network.volley.IturanServerAPI;
+import com.quick.disarm.infra.network.volley.VolleyResponseListener;
+import com.quick.disarm.model.ActivationAnswer;
 
 public class RegisterActivity extends AppCompatActivity {
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
@@ -42,17 +50,9 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_register);
 
-        initViews();
-        setupPage1();
-        
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_SMS}, SMS_PERMISSION_CODE);
-        }
-    }
-
-    private void initViews() {
         page1 = findViewById(R.id.page1);
         page2 = findViewById(R.id.page2);
         page3 = findViewById(R.id.page3);
@@ -60,16 +60,21 @@ public class RegisterActivity extends AppCompatActivity {
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
         editTextVerificationCode = findViewById(R.id.editTextVerificationCode);
         textViewSummary = findViewById(R.id.textViewSummary);
+
+        setupPage1();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_SMS}, SMS_PERMISSION_CODE);
+        }
     }
 
     private void setupPage1() {
-        Button buttonNext1 = findViewById(R.id.buttonNext1);
+        final Button buttonNext1 = findViewById(R.id.buttonNext1);
         buttonNext1.setOnClickListener(view -> {
             licensePlate = editTextLicensePlate.getText().toString().trim();
             phoneNumber = editTextPhoneNumber.getText().toString().trim();
             if (validatePage1()) {
-                sendSmsVerificationCode(phoneNumber);
-                showPage2();
+                sendSmsVerificationCode(licensePlate, phoneNumber);
             }
         });
     }
@@ -86,9 +91,29 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    private void sendSmsVerificationCode(String phoneNumber) {
-        // Simulate sending SMS verification code
-        Log.d("MainActivity", "Sending SMS verification code to " + phoneNumber);
+    private void sendSmsVerificationCode(String licensePlate, String phoneNumber) {
+        // PENDING: access server for sending SMS verification code
+        Log.d("RegisterActivity", "Sending SMS verification code to " + phoneNumber);
+
+        final VolleyResponseListener<AppResponse<ActivationAnswer>> activationResponseListener = new VolleyResponseListener<>() {
+            @Override
+            protected void onResponse(AppResponse<ActivationAnswer> response, boolean secondCallback) {
+                final ActivationAnswer activationAnswer = response.getData();
+                ILog.d("Activation Answer = " + activationAnswer);
+                if (activationAnswer.getDidRecognizerOwner()) {
+                    showPage2();
+                } else {
+                    editTextLicensePlate.setText(activationAnswer.getReturnError());
+                }
+            }
+
+            @Override
+            protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
+
+            }
+        };
+        final String deviceUuid = Utils.getDeviceUuid(QuickDisarmApplication.getAppContext());
+        IturanServerAPI.get().verifyDriver(licensePlate, phoneNumber, deviceUuid, activationResponseListener, activationResponseListener);
     }
 
     private void showPage2() {
@@ -141,8 +166,8 @@ public class RegisterActivity extends AppCompatActivity {
                 Object[] pdus = (Object[]) bundle.get("pdus");
                 if (pdus != null) {
                     for (Object pdu : pdus) {
-                        SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
-                        String messageBody = smsMessage.getMessageBody();
+                        final SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
+                        final String messageBody = smsMessage.getMessageBody();
                         // Extract verification code from the SMS message
                         // Assuming the verification code is the message body for simplicity
                         editTextVerificationCode.setText(messageBody);

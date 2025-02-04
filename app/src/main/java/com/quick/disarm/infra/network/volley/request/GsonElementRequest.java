@@ -17,12 +17,16 @@ import com.quick.disarm.infra.Utils;
 import com.quick.disarm.infra.network.volley.AppResponse;
 import com.quick.disarm.infra.network.volley.VolleyUtils;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 
+import fr.arnaudguyon.xmltojsonlib.XmlToJson;
+
 /**
- * A request that parses the JSON response using Gson
+ * A request that parses the XML response using XmlToJson and Gson
  */
 public class GsonElementRequest<T>
         extends AbstractJsonRequest<AppResponse<T>> {
@@ -99,7 +103,8 @@ public class GsonElementRequest<T>
     protected Response parseNetworkResponse(NetworkResponse response, boolean fromCache) {
         try {
             final long start = System.nanoTime();
-            final String json = new String(response.data, HttpHeaderParser.parseCharset(response.headers, StandardCharsets.UTF_8.name()));
+            final String xml = new String(response.data, HttpHeaderParser.parseCharset(response.headers, StandardCharsets.UTF_8.name()));
+            final String json = getStrippedJsonFromXML(xml);
             final String targetType = (mClazz != null ? mClazz.getSimpleName() : mTypeToken.getType().toString());
 
             if (DEBUG_SERVER_JSON) {
@@ -133,15 +138,22 @@ public class GsonElementRequest<T>
                 return Response.success(new AppResponse<>(data, fromCache, getReceiveTimeMs(response)),
                         VolleyUtils.parseIgnoreCacheHeaders(response, getTtl(), getSoftTtl()));
             } else {
-                ILog.d("Got empty json from server");
+                ILog.d("Got empty xml from server");
                 return Response.success(new AppResponse<>("Empty response from server", fromCache, getReceiveTimeMs(response)),
                         VolleyUtils.parseIgnoreCacheHeaders(response, getTtl(), getSoftTtl()));
             }
-        } catch (JsonSyntaxException | IOException e) {
+        } catch (JsonSyntaxException | IOException | JSONException e) {
             return Response.error(new ParseError(e));
         } catch (JsonIOException e) {
             return Response.error(new NetworkError(e));
         }
+    }
+
+    // Ituran is sending us old school XML instead of JSON so we
+    // need to do some ugly stuff here to convert the XML to json and remove
+    // the redundant wrapper TAG allowing Gson to create our desired model class
+    private String getStrippedJsonFromXML(String xml) throws JSONException {
+        return new XmlToJson.Builder(xml).build().toJson().getJSONObject(new XmlToJson.Builder(xml).build().toJson().keys().next()).toString();
     }
 
     /**

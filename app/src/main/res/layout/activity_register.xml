@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_marginTop="100dp"
     android:padding="16dp">
 
     <!-- Page 1 -->
@@ -17,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Car License Plate"
-            android:inputType="text" />
+            android:inputType="number" />
 
         <EditText
             android:id="@+id/editTextPhoneNumber"

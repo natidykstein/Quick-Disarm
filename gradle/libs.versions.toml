@@ -10,6 +10,7 @@ rootbeerLib = "0.1.0"
 securityCrypto = "1.0.0"
 securityCryptoVersion = "1.1.0-alpha06"
 volley = "1.2.1"
+xmltojson = "1.5.3"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -22,6 +23,7 @@ rootbeer-lib = { module = "com.scottyab:rootbeer-lib", version.ref = "rootbeerLi
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 security-crypto-v110alpha06 = { module = "androidx.security:security-crypto", version.ref = "securityCryptoVersion" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
+xmltojson = { module = "com.github.smart-fun:XmlToJson", version.ref = "xmltojson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -25,6 +25,7 @@
         android:required="false" />
 
     <application
+        android:name=".QuickDisarmApplication"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:dataExtractionRules="@xml/data_extraction_rules"

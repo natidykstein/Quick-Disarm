@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
@@ -63,6 +64,16 @@ public enum VolleyRequestManager {
     private Network createVolleyNetwork(Context context) {
         // BasicNetwork logs slow responses(>3 seconds) and cannot be removed. See https://issuetracker.google.com/issues/37074321
         return new BasicNetwork(new HurlStack());
+    }
+
+    /**
+     * Enqueues the specified request
+     *
+     * @param request The request to be processed by volley
+     * @param <T>     The class of the returned response
+     */
+    public <T> Request<T> enqueueRequest(Context context, Request<T> request) {
+        return getRequestQueue(context).add(request);
     }
 
     /**

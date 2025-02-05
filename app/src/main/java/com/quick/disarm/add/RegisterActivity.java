@@ -1,4 +1,4 @@
-package com.quick.disarm.register;
+package com.quick.disarm.add;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,13 +37,15 @@ import com.quick.disarm.model.SerializationAnswer;
 import com.quick.disarm.utils.PreferenceCache;
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
+    public static final String EXTRA_CAR_BLUETOOTH_NAME = "com.quick.disarm.extra.CAR_BLUETOOTH_NAME";
+    public static final String EXTRA_CAR_BLUETOOTH_MAC = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
 
     private static final int SMS_PERMISSION_CODE = 2000;
 
     private EditText editTextLicensePlate;
     private EditText editTextPhoneNumber;
     private EditText editTextIturanCode;
+    private ProgressBar progressBar;
 
     private EditText editTextVerificationCode;
     private TextView textViewSummary;
@@ -68,6 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
         editTextIturanCode = findViewById(R.id.editTextIturanCode);
         editTextVerificationCode = findViewById(R.id.editTextVerificationCode);
         textViewSummary = findViewById(R.id.textViewSummary);
+        progressBar = findViewById(R.id.progressBarRegister);
 
         setupPage1();
 
@@ -83,6 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
             phoneNumber = editTextPhoneNumber.getText().toString().trim();
             ituranCode = editTextIturanCode.getText().toString().trim();
             if (validatePage1()) {
+                progressBar.setVisibility(View.VISIBLE);
                 sendSmsVerificationCode();
             }
         });
@@ -110,6 +115,7 @@ public class RegisterActivity extends AppCompatActivity {
         final VolleyResponseListener<AppResponse<ActivationAnswer>> activationResponseListener = new VolleyResponseListener<>() {
             @Override
             protected void onResponse(AppResponse<ActivationAnswer> response, boolean secondCallback) {
+                progressBar.setVisibility(View.GONE);
                 final ActivationAnswer answer = response.getData();
                 ILog.d("Activation answer = " + answer);
                 if (ModelUtils.isValid(answer.getReturnError())) {
@@ -121,10 +127,13 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
-
+                progressBar.setVisibility(View.GONE);
+                ILog.e(VolleyResponseListener.responseParser(volleyError));
             }
         };
+
         final String deviceUuid = Utils.getDeviceUuid(QuickDisarmApplication.getAppContext());
+        ILog.d("Using device uuid = " + deviceUuid);
         IturanServerAPI.get().verifyDriver(licensePlate, phoneNumber, deviceUuid, activationResponseListener, activationResponseListener);
     }
 
@@ -139,6 +148,7 @@ public class RegisterActivity extends AppCompatActivity {
         buttonNext2.setOnClickListener(view -> {
             verificationCode = editTextVerificationCode.getText().toString().trim();
             if (validatePage2()) {
+                progressBar.setVisibility(View.VISIBLE);
                 validateSmsVerificationCode();
             }
         });
@@ -150,6 +160,7 @@ public class RegisterActivity extends AppCompatActivity {
         final VolleyResponseListener<AppResponse<SerializationAnswer>> serializationResponseListener = new VolleyResponseListener<>() {
             @Override
             protected void onResponse(AppResponse<SerializationAnswer> response, boolean secondCallback) {
+                progressBar.setVisibility(View.GONE);
                 final SerializationAnswer answer = response.getData();
                 ILog.d("Serialization answer = " + answer);
                 if (ModelUtils.isValid(answer.getReturnError())) {
@@ -162,7 +173,8 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
-
+                progressBar.setVisibility(View.GONE);
+                ILog.e(VolleyResponseListener.responseParser(volleyError));
             }
         };
         IturanServerAPI.get().validateSmsVerificationCode(licensePlate, phoneNumber, verificationCode, serializationResponseListener, serializationResponseListener);
@@ -170,7 +182,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
         final Car car = new Car(licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
-        final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH);
+        final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
         PreferenceCache.get(this).putCar(carBluetoothMac, car);
         ILog.d("Added " + car);
     }
@@ -186,7 +198,16 @@ public class RegisterActivity extends AppCompatActivity {
     private void showPage3() {
         page2.setVisibility(View.GONE);
         page3.setVisibility(View.VISIBLE);
-        textViewSummary.setText("Successfully registered\n\nLicense Plate: " + licensePlate + "\nPhone Number: " + phoneNumber);
+        final String carBluetoothName = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_NAME);
+        textViewSummary.setText("Successfully registered\n\nCar's Bluetooth: " + carBluetoothName + "\nLicense Plate: " + licensePlate + "\nPhone Number: " + phoneNumber);
+
+        final Button buttonDone = findViewById(R.id.buttonDone);
+        buttonDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override

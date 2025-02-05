@@ -11,14 +11,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quick.disarm.R;
 import com.quick.disarm.infra.ILog;
-import com.quick.disarm.register.RegisterActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,7 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             final String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device!=null) {
+                if (device != null) {
                     bluetoothDevices.add(new BluetoothDeviceItem(device.getName(), device.getAddress()));
                     adapter.notifyItemInserted(bluetoothDevices.size() - 1);
                 } else {
@@ -47,7 +45,6 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         }
     };
 
-    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,10 +55,11 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final BluetoothDeviceItem device = (BluetoothDeviceItem) view.getTag();
-                showDeviceDetails(device);
                 final Intent startRegisterActivityIntent = new Intent(DetectCarBluetoothActivity.this, RegisterActivity.class);
-                startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH, device.getAddress());
+                startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_NAME, device.getName());
+                startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_MAC, device.getAddress());
                 startActivity(startRegisterActivityIntent);
+                finish();
             }
         });
         recyclerView.setAdapter(adapter);
@@ -73,24 +71,33 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         // Initialize Bluetooth adapter
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
+        startDiscovery();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startDiscovery() {
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            ILog.d("Starting bluetooth discovery...");
             bluetoothAdapter.startDiscovery();
         } else {
-            // Handle Bluetooth not being enabled
+            ILog.e("Bluetooth device not enabled");
         }
     }
 
-    private void showDeviceDetails(BluetoothDeviceItem device) {
-        new AlertDialog.Builder(this)
-                .setTitle(device.getName())
-                .setMessage("Address: " + device.getAddress())
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+    @SuppressLint("MissingPermission")
+    private void cancelDiscovery() {
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            ILog.d("Cancelling bluetooth discovery...");
+            bluetoothAdapter.cancelDiscovery();
+        } else {
+            ILog.e("Bluetooth device not enabled");
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        cancelDiscovery();
         unregisterReceiver(bluetoothReceiver);
     }
 }

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,8 @@ import androidx.core.content.ContextCompat;
 import com.quick.disarm.add.DetectCarBluetoothActivity;
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.utils.PreferenceCache;
+
+import java.util.List;
 
 
 /**
@@ -47,6 +50,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     private Button mAddCarButton;
     private Button mDisarmButton;
     private ProgressBar mProgressBar;
+    private TextView mDataSummaryEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +81,11 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mDisarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDisarmButton.setEnabled(false);
-                mProgressBar.setVisibility(View.VISIBLE);
-                mDisarmButton.setText("DISARMING...");
-                StarlinkCommandDispatcher.get().dispatchDisarmCommand();
+                if (!getConfiguredCars().isEmpty()) {
+                   connectToDevice();
+                } else {
+                    Toast.makeText(DisarmActivity.this, "Please add a car first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -91,9 +96,18 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         } else {
             requestNeededPermissions();
         }
+    }
 
-        // Check if we need to setup the cars data
-        initCarsIfNeeded();
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        mDataSummaryEditText = findViewById(R.id.editTextDataSummary);
+        mDataSummaryEditText.setText("Number of configured cars :" + getConfiguredCars().size());
+    }
+
+    private List<String> getConfiguredCars() {
+        return PreferenceCache.get(this).getCarBluetoothList();
     }
 
     private void requestNeededPermissions() {
@@ -120,21 +134,20 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
      * of the APK by others
      * This method should be configured per APK distribution
      */
-    private void initCarsIfNeeded() {
-        if (PreferenceCache.get(this).getCarBluetoothList().isEmpty()) {
-            ILog.d("No cars configured - adding cars...");
-
-            final Car myXpengG9 = new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
-            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
-            ILog.d("Added " + myXpengG9);
-
-            final Car fakeCar = new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
-            PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
-
-            ILog.d("Added " + fakeCar);
-        }
-    }
-
+//    private void initCarsIfNeeded() {
+//        if (PreferenceCache.get(this).getCarBluetoothList().isEmpty()) {
+//            ILog.d("No cars configured - adding cars...");
+//
+//            final Car myXpengG9 = new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
+//            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
+//            ILog.d("Added " + myXpengG9);
+//
+//            final Car fakeCar = new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
+//            PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
+//
+//            ILog.d("Added " + fakeCar);
+//        }
+//    }
     private void connectToDevice() {
         setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
 

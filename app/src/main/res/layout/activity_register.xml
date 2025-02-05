@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_marginTop="100dp"
+    android:fitsSystemWindows="true"
     android:padding="16dp">
 
     <!-- Page 1 -->
     <LinearLayout
         android:id="@+id/page1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <EditText
             android:id="@+id/editTextLicensePlate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Car License Plate"
-            android:maxLength="8"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="8" />
 
         <EditText
             android:id="@+id/editTextPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Phone Number"
-            android:maxLength="10"
-            android:inputType="phone" />
+            android:inputType="phone"
+            android:maxLength="10" />
 
         <EditText
             android:id="@+id/editTextIturanCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Ituran Code"
-            android:maxLength="4"
-            android:inputType="phone" />
+            android:inputType="phone"
+            android:maxLength="4" />
 
         <Button
             android:id="@+id/buttonNext1"
@@ -48,8 +49,10 @@
     <LinearLayout
         android:id="@+id/page2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:orientation="vertical"
+        android:padding="16dp"
         android:visibility="gone">
 
         <EditText
@@ -70,8 +73,10 @@
     <LinearLayout
         android:id="@+id/page3"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:orientation="vertical"
+        android:padding="16dp"
         android:visibility="gone">
 
         <TextView
@@ -80,6 +85,20 @@
             android:layout_height="wrap_content"
             android:text="Summary" />
 
+        <Button
+            android:id="@+id/buttonDone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Done" />
+
     </LinearLayout>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBarRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+</RelativeLayout>

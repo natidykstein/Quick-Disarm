@@ -1,4 +1,4 @@
-package com.quick.disarm.add;
+package com.quick.disarm.register;
 
 import android.view.LayoutInflater;
 import android.view.View;

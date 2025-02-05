@@ -4,15 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
-
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.quick.disarm.infra.Utils;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,27 +17,7 @@ class SharedPreferencesProxy {
     private final SharedPreferences mSharedPref;
 
     public SharedPreferencesProxy(Context context, String prefName) {
-        mSharedPref = createSecuredSharedPreferences(context, prefName);
-    }
-
-    private SharedPreferences createSecuredSharedPreferences(Context context, String prefName) {
-        try {
-            // Attempt to create our secured shared preferences
-            final MasterKey masterKey = new MasterKey.Builder(context)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build();
-            return EncryptedSharedPreferences.create(
-                    context,
-                    prefName,
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
-        } catch (GeneralSecurityException | IOException e) {
-            Log.e(TAG, "Failed to create secured shared prefs - defaulting to unsecured shared prefs");
-
-            return null;
-        }
+        mSharedPref = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
     }
 
     public boolean contains(String key) {

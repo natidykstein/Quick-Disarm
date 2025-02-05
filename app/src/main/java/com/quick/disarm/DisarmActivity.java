@@ -21,8 +21,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.quick.disarm.add.DetectCarBluetoothActivity;
 import com.quick.disarm.infra.ILog;
+import com.quick.disarm.register.DetectCarBluetoothActivity;
 import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.List;
@@ -52,6 +52,8 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     private ProgressBar mProgressBar;
     private TextView mDataSummaryEditText;
 
+    private DisarmStatus mDisarmStatus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,23 +71,22 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         }
 
         mAddCarButton = findViewById(R.id.add_car_button);
-        mAddCarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
-                startActivity(startDetectActivityIntent);
-            }
+        mAddCarButton.setOnClickListener(v -> {
+            final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
+            startActivity(startDetectActivityIntent);
         });
 
         mDisarmButton = findViewById(R.id.disarm_button);
-        mDisarmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!getConfiguredCars().isEmpty()) {
-                   connectToDevice();
+        mDisarmButton.setOnClickListener(v -> {
+            if (!getConfiguredCars().isEmpty()) {
+                // PENDING: Act upon status
+                if(mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
+                    connectToDevice();
                 } else {
-                    Toast.makeText(DisarmActivity.this, "Please add a car first", Toast.LENGTH_SHORT).show();
+                    StarlinkCommandDispatcher.get().dispatchDisarmCommand();
                 }
+            } else {
+                Toast.makeText(DisarmActivity.this, "Please add a car first", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -129,25 +130,6 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         return ContextCompat.checkSelfPermission(DisarmActivity.this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    /**
-     * Keep car data hardcoded intentionally to prevent unauthorized reuse
-     * of the APK by others
-     * This method should be configured per APK distribution
-     */
-//    private void initCarsIfNeeded() {
-//        if (PreferenceCache.get(this).getCarBluetoothList().isEmpty()) {
-//            ILog.d("No cars configured - adding cars...");
-//
-//            final Car myXpengG9 = new Car("76579403", "D0:1F:DD:C2:37:2D", 2276181, "2233");
-//            PreferenceCache.get(this).putCar("A4:04:50:44:C1:0F", myXpengG9);
-//            ILog.d("Added " + myXpengG9);
-//
-//            final Car fakeCar = new Car("12345678", "D0:1F:DD:C2:37:2D", 2276181, "1234");
-//            PreferenceCache.get(this).putCar("60:AB:D2:B2:95:AE", fakeCar);
-//
-//            ILog.d("Added " + fakeCar);
-//        }
-//    }
     private void connectToDevice() {
         setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
 
@@ -183,33 +165,31 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void setDisarmStatus(final DisarmStatus disarmStatus) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                switch (disarmStatus) {
-                    case READY_TO_CONNECT:
-                        mDisarmButton.setEnabled(true);
-                        mProgressBar.setVisibility(View.GONE);
-                        mDisarmButton.setText("Connect");
-                        break;
-                    case CONNECTING_TO_DEVICE:
-                        mDisarmButton.setEnabled(false);
-                        mProgressBar.setVisibility(View.VISIBLE);
-                        mDisarmButton.setText("Connecting to device...");
-                        break;
-                    case DEVICE_CONNECTED:
-                        mDisarmButton.setEnabled(false);
-                        mProgressBar.setVisibility(View.VISIBLE);
-                        mDisarmButton.setText("Discovering device...");
-                        break;
-                    case DEVICE_DISCOVERED:
-                        mDisarmButton.setText("Reading random...");
-                        break;
-                    case RANDOM_READ_SUCCESSFULLY:
-                        mDisarmButton.setEnabled(true);
-                        mProgressBar.setVisibility(View.GONE);
-                        mDisarmButton.setText("DISARM");
-                }
+        mDisarmStatus = disarmStatus;
+        runOnUiThread(() -> {
+            switch (disarmStatus) {
+                case READY_TO_CONNECT:
+                    mDisarmButton.setEnabled(true);
+                    mProgressBar.setVisibility(View.GONE);
+                    mDisarmButton.setText("Connect");
+                    break;
+                case CONNECTING_TO_DEVICE:
+                    mDisarmButton.setEnabled(false);
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    mDisarmButton.setText("Connecting to device...");
+                    break;
+                case DEVICE_CONNECTED:
+                    mDisarmButton.setEnabled(false);
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    mDisarmButton.setText("Discovering device...");
+                    break;
+                case DEVICE_DISCOVERED:
+                    mDisarmButton.setText("Reading random...");
+                    break;
+                case RANDOM_READ_SUCCESSFULLY:
+                    mDisarmButton.setEnabled(true);
+                    mProgressBar.setVisibility(View.GONE);
+                    mDisarmButton.setText("DISARM");
             }
         });
     }

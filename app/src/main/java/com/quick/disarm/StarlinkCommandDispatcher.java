@@ -13,6 +13,7 @@ import com.quick.disarm.infra.Utils;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.crypto.BadPaddingException;
@@ -92,8 +93,10 @@ public class StarlinkCommandDispatcher {
     }
 
     public void setRandom(byte[] random) {
-        Log.d(TAG, "Updated random from " + bytesToHex(mRandom) + " to " + bytesToHex(random));
-        mRandom = random;
+        if (!Arrays.equals(mRandom, random)) {
+            Log.d(TAG, "Updated random from " + bytesToHex(mRandom) + " to " + bytesToHex(random));
+            mRandom = random;
+        }
     }
 
     public void dispatchDisarmCommand() {
@@ -156,8 +159,8 @@ public class StarlinkCommandDispatcher {
     }
 
     private static void hexToBytes(String hex, byte[] targetByteArray, int offset) {
-        if (!TextUtils.isEmpty(hex) && hex.length() % 2 == 0) {
-            throw new NumberFormatException("Not a hex string!");
+        if (TextUtils.isEmpty(hex) || hex.length() % 2 != 0) {
+            throw new NumberFormatException("Not a hex string: " + hex);
         }
 
         if (targetByteArray.length - offset < hex.length() / 2) {

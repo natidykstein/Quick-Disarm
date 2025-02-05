@@ -45,8 +45,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".add.DetectCarBluetoothActivity" />
-        <activity android:name=".add.RegisterActivity" />
+        <activity android:name=".register.DetectCarBluetoothActivity" />
+        <activity android:name=".register.RegisterActivity" />
 
         <!-- Register the receiver -->
         <receiver

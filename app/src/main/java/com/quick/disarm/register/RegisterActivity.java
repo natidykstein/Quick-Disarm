@@ -1,4 +1,4 @@
-package com.quick.disarm.add;
+package com.quick.disarm.register;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -127,14 +127,24 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
-                progressBar.setVisibility(View.GONE);
-                ILog.e(VolleyResponseListener.responseParser(volleyError));
+                showErrorMessage(VolleyResponseListener.responseParser(volleyError));
             }
         };
 
         final String deviceUuid = Utils.getDeviceUuid(QuickDisarmApplication.getAppContext());
         ILog.d("Using device uuid = " + deviceUuid);
         IturanServerAPI.get().verifyDriver(licensePlate, phoneNumber, deviceUuid, activationResponseListener, activationResponseListener);
+    }
+
+    private void showErrorMessage(String errorMessage) {
+        progressBar.setVisibility(View.GONE);
+
+        if (Utils.isConnectedToNetwork(RegisterActivity.this)) {
+            ILog.e(errorMessage);
+            Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(RegisterActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showPage2() {
@@ -173,8 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             protected void onErrorResponse(VolleyError volleyError, boolean secondCallback, boolean unauthorized) {
-                progressBar.setVisibility(View.GONE);
-                ILog.e(VolleyResponseListener.responseParser(volleyError));
+                showErrorMessage(VolleyResponseListener.responseParser(volleyError));
             }
         };
         IturanServerAPI.get().validateSmsVerificationCode(licensePlate, phoneNumber, verificationCode, serializationResponseListener, serializationResponseListener);

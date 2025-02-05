@@ -14,8 +14,10 @@ android {
         applicationId "com.quick.disarm"
         minSdk 31
         targetSdk 35
-        versionCode 1
-        versionName "1.0"
+        versionCode 1000
+        versionName "1.0.0-beta"
+
+        setProperty("archivesBaseName", "QuickDisarm-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,7 +62,6 @@ android {
 }
 
 dependencies {
-    implementation libs.security.crypto.v110alpha06
     implementation libs.gson
     implementation libs.xmltojson
 

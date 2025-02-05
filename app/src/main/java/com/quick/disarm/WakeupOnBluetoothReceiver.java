@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.quick.disarm.utils.PreferenceCache;
 
-import java.util.List;
+import java.util.Set;
 
 @SuppressLint("MissingPermission")
 public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
@@ -25,11 +25,11 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
             }
 
             if (device != null) {
-                final List<String> bluetoothList =
-                        PreferenceCache.get(context).getCarBluetoothList();
+                final Set<String> bluetoothSet =
+                        PreferenceCache.get(context).getCarBluetoothSet();
                 // Iterate through configured car bluetooth list
                 final String connectedCarBluetoothMac =
-                        getConnectedBluetoothMac(device.getAddress(), bluetoothList);
+                        getConnectedBluetoothMac(device.getAddress(), bluetoothSet);
                 if (connectedCarBluetoothMac != null) {
                     // Offload disarming to intent service
                     final Intent serviceIntent = new Intent(context, DisarmService.class);
@@ -51,13 +51,10 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     /**
      * Check if the connected device address is one of the configured cars bluetooth mac
      */
-    private String getConnectedBluetoothMac(String connectedDeviceAddress, List<String> configuredCarAddressList) {
-        for (String carBluetoothMac : configuredCarAddressList) {
-            if (connectedDeviceAddress.equals(carBluetoothMac)) {
-                return carBluetoothMac;
-            }
-        }
-
-        return null;
+    private String getConnectedBluetoothMac(String connectedDeviceAddress, Set<String> configuredCarAddressList) {
+        return configuredCarAddressList.stream()
+                .filter(bluetoothMac -> bluetoothMac.equals(connectedDeviceAddress))
+                .findFirst()
+                .orElse(null);
     }
 }

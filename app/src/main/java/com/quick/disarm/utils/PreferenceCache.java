@@ -7,8 +7,8 @@ import androidx.annotation.Nullable;
 import com.google.gson.reflect.TypeToken;
 import com.quick.disarm.Car;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PreferenceCache {
     private static final String SHARED_PREFERENCES_FILE_NAME = "disarm_pref_cache";
@@ -40,13 +40,13 @@ public class PreferenceCache {
         mSharedPreferencesProxy = new SharedPreferencesProxy(context, SHARED_PREFERENCES_FILE_NAME);
     }
 
-    private void setCarBluetoothList(List<String> carBluetoothList) {
+    private void setCarBluetoothSet(Set<String> carBluetoothList) {
         mSharedPreferencesProxy.putObject(SPF_CAR_BLUETOOTH_LIST, carBluetoothList);
     }
 
-    public List<String> getCarBluetoothList() {
-        return mSharedPreferencesProxy.getObject(SPF_CAR_BLUETOOTH_LIST, new TypeToken<List<String>>() {
-        }, new ArrayList<>());
+    public Set<String> getCarBluetoothSet() {
+        return mSharedPreferencesProxy.getObject(SPF_CAR_BLUETOOTH_LIST, new TypeToken<Set<String>>() {
+        }, new HashSet<>());
     }
 
     @Nullable
@@ -54,27 +54,10 @@ public class PreferenceCache {
         return mSharedPreferencesProxy.getObject(bluetoothMac, Car.class, null);
     }
 
-    public void putCar(String bluetoothMac, Car car) {
-        // Add bluetooth to existing list
-        final List<String> bluetoothList = getCarBluetoothList();
+    public void addCar(String bluetoothMac, Car car) {
+        final Set<String> bluetoothList = getCarBluetoothSet();
         bluetoothList.add(bluetoothMac);
-        setCarBluetoothList(bluetoothList);
-
+        setCarBluetoothSet(bluetoothList);
         mSharedPreferencesProxy.putObject(bluetoothMac, car);
     }
-
-
-//    public void saveRecordingData(@NonNull RecordingData recordingData) {
-//        mSharedPreferencesProxy.putObject(recordingData.getId(), recordingData);
-//    }
-//
-//    public void removeRecordingData(@NonNull String recordingId) {
-//        mSharedPreferencesProxy.remove(recordingId);
-//    }
-//
-//    @Nullable
-//    public RecordingData getRecordingData(@NonNull String recordingId) {
-//        return mSharedPreferencesProxy.getObject(recordingId, RecordingData.class);
-//    }
-
 }

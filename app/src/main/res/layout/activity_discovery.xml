@@ -5,6 +5,16 @@
     android:fitsSystemWindows="true"
     tools:context=".DisarmActivity">
 
+    <TextView
+        android:id="@+id/textViewVersionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        tools:text="1.0.0-beta"
+        android:textSize="11sp"
+        />
+
     <Button
         android:id="@+id/disarm_button"
         android:layout_width="wrap_content"

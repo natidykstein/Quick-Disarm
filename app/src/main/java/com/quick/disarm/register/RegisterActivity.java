@@ -55,6 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String licensePlate;
     private String phoneNumber;
     private String ituranCode;
+    private Button buttonNext2;
     private String verificationCode;
 
     @Override
@@ -69,6 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
         editTextLicensePlate = findViewById(R.id.editTextLicensePlate);
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
         editTextIturanCode = findViewById(R.id.editTextIturanCode);
+        buttonNext2 = findViewById(R.id.buttonNext2);
         editTextVerificationCode = findViewById(R.id.editTextVerificationCode);
         textViewSummary = findViewById(R.id.textViewSummary);
         progressBar = findViewById(R.id.progressBarRegister);
@@ -154,7 +156,6 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupPage2() {
-        final Button buttonNext2 = findViewById(R.id.buttonNext2);
         buttonNext2.setOnClickListener(view -> {
             verificationCode = editTextVerificationCode.getText().toString().trim();
             if (validatePage2()) {
@@ -192,7 +193,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
         final Car car = new Car(licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
         final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
-        PreferenceCache.get(this).putCar(carBluetoothMac, car);
+        PreferenceCache.get(this).addCar(carBluetoothMac, car);
         ILog.d("Added " + car);
     }
 
@@ -234,16 +235,27 @@ public class RegisterActivity extends AppCompatActivity {
     private final BroadcastReceiver smsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Bundle bundle = intent.getExtras();
+            final Bundle bundle = intent.getExtras();
             if (bundle != null) {
-                Object[] pdus = (Object[]) bundle.get("pdus");
+                final Object[] pdus = (Object[]) bundle.get("pdus");
                 if (pdus != null) {
                     for (Object pdu : pdus) {
                         final SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
                         final String messageBody = smsMessage.getMessageBody();
+
                         // Extract verification code from the SMS message
-                        // Assuming the verification code is the message body for simplicity
-                        editTextVerificationCode.setText(messageBody);
+                        final StringBuilder smsCode = new StringBuilder();
+                        for (int i = 0; i < messageBody.length(); i++) {
+                            while (i < messageBody.length() && Character.isDigit(messageBody.charAt(i))) {
+                                smsCode.append(messageBody.charAt(i++));
+                            }
+                        }
+
+                        // Insert extracted code if not empty
+                        if(smsCode.length() > 0) {
+                            editTextVerificationCode.setText(smsCode.toString());
+                            buttonNext2.callOnClick();
+                        }
                     }
                 }
             }

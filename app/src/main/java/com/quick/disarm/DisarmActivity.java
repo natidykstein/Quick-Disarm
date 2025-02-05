@@ -22,10 +22,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
+import com.quick.disarm.infra.Utils;
 import com.quick.disarm.register.DetectCarBluetoothActivity;
 import com.quick.disarm.utils.PreferenceCache;
 
-import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -70,6 +71,9 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             return;
         }
 
+        final TextView verionTextView = findViewById(R.id.textViewVersionName);
+        verionTextView.setText(Utils.getApplicationVersionName(this));
+
         mAddCarButton = findViewById(R.id.add_car_button);
         mAddCarButton.setOnClickListener(v -> {
             final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
@@ -80,7 +84,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mDisarmButton.setOnClickListener(v -> {
             if (!getConfiguredCars().isEmpty()) {
                 // PENDING: Act upon status
-                if(mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
+                if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
                     connectToDevice();
                 } else {
                     StarlinkCommandDispatcher.get().dispatchDisarmCommand();
@@ -107,8 +111,8 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mDataSummaryEditText.setText("Number of configured cars :" + getConfiguredCars().size());
     }
 
-    private List<String> getConfiguredCars() {
-        return PreferenceCache.get(this).getCarBluetoothList();
+    private Set<String> getConfiguredCars() {
+        return PreferenceCache.get(this).getCarBluetoothSet();
     }
 
     private void requestNeededPermissions() {
@@ -134,7 +138,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
 
         // PENDING: In the activity we need to allow selecting the car to which we want to connect and disarm
-        final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothList().get(0);
+        final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothSet().iterator().next();
         final Car connectedCar = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
         final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
         device.connectGatt(this, false, new StartLinkGattCallback(this, connectedCar), BluetoothDevice.TRANSPORT_LE);

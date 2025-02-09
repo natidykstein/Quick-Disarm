@@ -31,9 +31,10 @@ import java.util.Set;
 
 /**
  * PENDING:
- *  3. Add menu item in DisarmActivity to manage car data
- *  5. Display list of currently configured cars (read-only)
- *  6. Add setup wizard that go through Ituran registration process to register device UUID and get starlink serial+mac
+ *  5. Display list of currently configured cars (read-only) + selecting current car for manual disarm
+ *  8. Allow deleting a car
+ *  9. Add new google maps activity for tracking a car
+ *  10. Show toast when performing disarm (allow setting this by the user to on/off)
  * <p>
  * Add 'Add Car' button [Deferred since it will allow reuse of the app without permission]
  */

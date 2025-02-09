@@ -118,13 +118,19 @@ public class StarlinkCommandDispatcher {
         }
         commandBufferBytes[10] = (byte) (codeAsUnsignedInt & 0xFF);
         commandBufferBytes[11] = (byte) ((codeAsUnsignedInt & 0xFF00) >> 8);
-        Log.d(TAG, "Command buffer: " + bytesToHex(commandBufferBytes));
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Command buffer: " + bytesToHex(commandBufferBytes));
+        }
 
         final byte[] randomizedSerialBytes = keyGen(mConnectedCar.getStarlinkSerial(), mRandom);
-        Log.d(TAG, "Key: " + bytesToHex(randomizedSerialBytes));
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Key: " + bytesToHex(randomizedSerialBytes));
+        }
 
         final byte[] encryptedRandomizedSerialBytes = encryptCommand(commandBufferBytes, randomizedSerialBytes);
-        Log.d(TAG, "Encrypted command: " + bytesToHex(encryptedRandomizedSerialBytes));
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Encrypted command: " + bytesToHex(encryptedRandomizedSerialBytes));
+        }
 
         if (Build.VERSION.SDK_INT >= 33) {
             mGatt.writeCharacteristic(mSendCharacteristic, encryptedRandomizedSerialBytes, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);

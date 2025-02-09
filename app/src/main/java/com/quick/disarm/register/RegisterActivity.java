@@ -97,15 +97,15 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean validatePage1() {
         if (TextUtils.isEmpty(licensePlate)) {
-            editTextLicensePlate.setError("License plate is required");
+            editTextLicensePlate.setError(getString(R.string.license_plate_is_required));
             return false;
         }
         if (TextUtils.isEmpty(phoneNumber)) {
-            editTextPhoneNumber.setError("Phone number is required");
+            editTextPhoneNumber.setError(getString(R.string.phone_number_is_required));
             return false;
         }
         if (TextUtils.isEmpty(ituranCode)) {
-            editTextIturanCode.setError("Ituran code is required");
+            editTextIturanCode.setError(getString(R.string.ituran_code_is_required));
             return false;
         }
         return true;
@@ -145,7 +145,7 @@ public class RegisterActivity extends AppCompatActivity {
             ILog.e(errorMessage);
             Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(RegisterActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this, R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -199,7 +199,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean validatePage2() {
         if (TextUtils.isEmpty(verificationCode)) {
-            editTextVerificationCode.setError("Verification code is required");
+            editTextVerificationCode.setError(getString(R.string.verification_code_is_required));
             return false;
         }
         return true;
@@ -209,7 +209,7 @@ public class RegisterActivity extends AppCompatActivity {
         page2.setVisibility(View.GONE);
         page3.setVisibility(View.VISIBLE);
         final String carBluetoothName = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_NAME);
-        textViewSummary.setText("Successfully registered\n\nCar's Bluetooth: " + carBluetoothName + "\nLicense Plate: " + licensePlate + "\nPhone Number: " + phoneNumber);
+        textViewSummary.setText(getString(R.string.summary_message, carBluetoothName, licensePlate, phoneNumber));
 
         final Button buttonDone = findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(new View.OnClickListener() {
@@ -252,7 +252,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
 
                         // Insert extracted code if not empty
-                        if(smsCode.length() > 0) {
+                        if (smsCode.length() > 0) {
                             editTextVerificationCode.setText(smsCode.toString());
                             buttonNext2.callOnClick();
                         }
@@ -266,9 +266,9 @@ public class RegisterActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == SMS_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "SMS permission granted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.sms_permission_granted, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "SMS permission denied", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.sms_permission_not_granted, Toast.LENGTH_SHORT).show();
         }
     }
 }

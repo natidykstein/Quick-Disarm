@@ -36,7 +36,6 @@ import java.util.Set;
  *  9. Add new google maps activity for tracking a car
  *  10. Show toast when performing disarm (allow setting this by the user to on/off)
  * <p>
- * Add 'Add Car' button [Deferred since it will allow reuse of the app without permission]
  */
 @SuppressLint("MissingPermission")
 public class DisarmActivity extends AppCompatActivity implements DisarmStateListener {
@@ -46,13 +45,10 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
 
-
     private BluetoothAdapter bluetoothAdapter;
 
-    private Button mAddCarButton;
     private Button mDisarmButton;
     private ProgressBar mProgressBar;
-    private TextView mDataSummaryEditText;
 
     private DisarmStatus mDisarmStatus;
 
@@ -67,7 +63,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
         // Check if Bluetooth is supported
         if (bluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not supported on this device", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.bluetooth_not_supported_on_device, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -75,8 +71,8 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         final TextView verionTextView = findViewById(R.id.textViewVersionName);
         verionTextView.setText(Utils.getApplicationVersionName(this));
 
-        mAddCarButton = findViewById(R.id.add_car_button);
-        mAddCarButton.setOnClickListener(v -> {
+        final Button addCarButton = findViewById(R.id.add_car_button);
+        addCarButton.setOnClickListener(v -> {
             final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
             startActivity(startDetectActivityIntent);
         });
@@ -84,14 +80,13 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mDisarmButton = findViewById(R.id.disarm_button);
         mDisarmButton.setOnClickListener(v -> {
             if (!getConfiguredCars().isEmpty()) {
-                // PENDING: Act upon status
                 if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
                     connectToDevice();
                 } else {
                     StarlinkCommandDispatcher.get().dispatchDisarmCommand();
                 }
             } else {
-                Toast.makeText(DisarmActivity.this, "Please add a car first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DisarmActivity.this, R.string.please_add_a_car_first, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -108,8 +103,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     protected void onStart() {
         super.onStart();
 
-        mDataSummaryEditText = findViewById(R.id.editTextDataSummary);
-        mDataSummaryEditText.setText(getString(R.string.number_of_configured_cars, getConfiguredCars().size()));
+        this.<TextView>findViewById(R.id.editTextDataSummary).setText(getString(R.string.number_of_configured_cars, getConfiguredCars().size()));
     }
 
     private Set<String> getConfiguredCars() {
@@ -139,6 +133,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
 
         // PENDING: In the activity we need to allow selecting the car to which we want to connect and disarm
+        //  Currently we're taking the first car
         final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothSet().iterator().next();
         final Car connectedCar = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
         final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
@@ -198,10 +193,5 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                     mDisarmButton.setText(R.string.disarm);
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -18,7 +19,7 @@
             android:id="@+id/editTextLicensePlate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Car License Plate"
+            android:hint="@string/car_license_plate"
             android:inputType="number"
             android:maxLength="8" />
 
@@ -26,6 +27,7 @@
             android:id="@+id/editTextPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="phone"
             android:hint="@string/phone_number_hint"
             android:inputType="phone"
             android:maxLength="10" />
@@ -60,7 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/verification_code_hint"
-            android:inputType="number" />
+            android:inputType="number"
+            tools:ignore="Autofill" />
 
         <Button
             android:id="@+id/buttonNext2"

@@ -153,7 +153,7 @@ public class StarlinkCommandDispatcher {
 
     private static byte[] encryptCommand(byte[] paramArrayOfbyte1, byte[] paramArrayOfbyte2) {
         try {
-            Cipher cipher = Cipher.getInstance("AES");
+            final Cipher cipher = Cipher.getInstance("AES");
             SecretKeySpec secretKeySpec = new SecretKeySpec(paramArrayOfbyte2, "AES");
             cipher.init(1, secretKeySpec);
             paramArrayOfbyte1 = cipher.doFinal(paramArrayOfbyte1);
@@ -188,7 +188,6 @@ public class StarlinkCommandDispatcher {
         }
 
         final byte[] serialByteArray = ByteBuffer.allocate(4).putInt(deviceSerial).array();
-        Log.d(TAG, "starlink serial = " + bytesToHex(serialByteArray));
         for (int i = 0; i < random.length; i++) {
             random[i] = (byte) (random[i] ^ serialByteArray[i % serialByteArray.length]);
         }

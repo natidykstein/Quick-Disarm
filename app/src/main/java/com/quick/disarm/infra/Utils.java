@@ -1018,6 +1018,9 @@ public class Utils {
     }
 
     // This is the way Ituran is working - so we use it too
+    // Just note that Settings.Secure.getString(paramContext.getContentResolver(), "android_id")
+    // generates different value per app signing key and user.
+    // (see https://developer.android.com/reference/android/provider/Settings.Secure#ANDROID_ID)
     public static String getDeviceUuid(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }

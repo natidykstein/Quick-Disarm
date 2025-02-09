@@ -108,7 +108,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         super.onStart();
 
         mDataSummaryEditText = findViewById(R.id.editTextDataSummary);
-        mDataSummaryEditText.setText("Number of configured cars :" + getConfiguredCars().size());
+        mDataSummaryEditText.setText(getString(R.string.number_of_configured_cars, getConfiguredCars().size()));
     }
 
     private Set<String> getConfiguredCars() {
@@ -161,8 +161,9 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                 ILog.d("Got required permissions");
                 setDisarmStatus(DisarmStatus.READY_TO_CONNECT);
             } else {
-                Toast.makeText(this, "Failed to acquire needed permissions", Toast.LENGTH_SHORT).show();
-                ILog.d("Failed to get required permissions - exiting...");
+                final String errorMessage = getString(R.string.failed_to_acquire_missing_permissions);
+                Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+                ILog.d(errorMessage + " - exiting...");
                 finish();
             }
         }
@@ -175,25 +176,25 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                 case READY_TO_CONNECT:
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);
-                    mDisarmButton.setText("Connect");
+                    mDisarmButton.setText(R.string.connect);
                     break;
                 case CONNECTING_TO_DEVICE:
                     mDisarmButton.setEnabled(false);
                     mProgressBar.setVisibility(View.VISIBLE);
-                    mDisarmButton.setText("Connecting to device...");
+                    mDisarmButton.setText(R.string.connecting_to_device);
                     break;
                 case DEVICE_CONNECTED:
                     mDisarmButton.setEnabled(false);
                     mProgressBar.setVisibility(View.VISIBLE);
-                    mDisarmButton.setText("Discovering device...");
+                    mDisarmButton.setText(R.string.discovering_device);
                     break;
                 case DEVICE_DISCOVERED:
-                    mDisarmButton.setText("Reading random...");
+                    mDisarmButton.setText(R.string.reading_random);
                     break;
                 case RANDOM_READ_SUCCESSFULLY:
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);
-                    mDisarmButton.setText("DISARM");
+                    mDisarmButton.setText(R.string.disarm);
             }
         });
     }

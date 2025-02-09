@@ -8,12 +8,12 @@
         android:id="@+id/device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Device Name"
+        android:text="@string/device_name"
         android:textSize="18sp" />
 
     <TextView
         android:id="@+id/device_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Device Address" />
+        android:text="@string/device_address" />
 </LinearLayout>

@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:text="Please select your car's bluetooth" />
+        android:text="@string/please_select_your_car_s_bluetooth" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

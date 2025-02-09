@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">Quick Disarm</string>
+
+    <!-- Registration pages -->
+    <string name="please_select_your_car_s_bluetooth">Please select your car\'s bluetooth</string>
+    <string name="device_name">Device Name</string>
+    <string name="device_address">Device Address</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="ituran_code_4_digits_hint">Ituran Code (4 digits)</string>
+    <string name="next">Next</string>
+    <string name="verification_code_hint">Verification Code</string>
+    <string name="summary">Summary</string>
+    <string name="done">Done</string>
+
+    <!-- Quick Disarm Activity -->
+    <string name="add_car">Add car</string>
+    <string name="number_of_configured_cars">Number of configured cars : %1$d</string>
+    <string name="failed_to_acquire_missing_permissions">Failed to acquire needed permissions</string>
+    <string name="connect">Connect</string>
+    <string name="connecting_to_device">Connecting to device…</string>
+    <string name="discovering_device">Discovering device...</string>
+    <string name="reading_random">Reading random...</string>
+    <string name="disarm">DISARM</string>
 </resources>

@@ -26,7 +26,7 @@
             android:id="@+id/editTextPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone Number"
+            android:hint="@string/phone_number_hint"
             android:inputType="phone"
             android:maxLength="10" />
 
@@ -34,7 +34,7 @@
             android:id="@+id/editTextIturanCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ituran Code"
+            android:hint="@string/ituran_code_4_digits_hint"
             android:inputType="phone"
             android:maxLength="4" />
 
@@ -42,7 +42,7 @@
             android:id="@+id/buttonNext1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Next" />
+            android:text="@string/next" />
     </LinearLayout>
 
     <!-- Page 2 -->
@@ -59,14 +59,14 @@
             android:id="@+id/editTextVerificationCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Verification Code"
+            android:hint="@string/verification_code_hint"
             android:inputType="number" />
 
         <Button
             android:id="@+id/buttonNext2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Next" />
+            android:text="@string/next" />
     </LinearLayout>
 
     <!-- Page 3 -->
@@ -83,13 +83,13 @@
             android:id="@+id/textViewSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Summary" />
+            android:text="@string/summary" />
 
         <Button
             android:id="@+id/buttonDone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Done" />
+            android:text="@string/done" />
 
     </LinearLayout>
 

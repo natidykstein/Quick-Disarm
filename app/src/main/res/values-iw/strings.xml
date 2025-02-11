@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Quick Disarm</string>
+
+    <!-- Registration pages -->
+    <string name="please_select_your_car_s_bluetooth">אנא בחר את הבלוטוס של מכוניתך:</string>
+    <string name="device_name">שם מכשיר</string>
+    <string name="device_address">כתובת מכשיר</string>
+    <string name="car_license_plate">מס׳ רכב</string>
+    <string name="phone_number_hint">מספר טלפון</string>
+    <string name="ituran_code_4_digits_hint">קוד איתוראן(4 ספרות)</string>
+    <string name="license_plate_is_required">נדרש מס׳ רכב</string>
+    <string name="phone_number_is_required">הדרש מס׳ טלפון</string>
+    <string name="ituran_code_is_required">נדרש קוד איתוראן</string>
+    <string name="next">הבא</string>
+    <string name="sms_permission_granted">ניתנו הרשאות סמס</string>
+    <string name="sms_permission_not_granted">לא ניתנו הרשאות סמס</string>
+    <string name="verification_code_hint">קוד אימות</string>
+    <string name="verification_code_is_required">נדרש קוד אימות</string>
+    <string name="summary">סיכום</string>
+    <string name="done">סיום</string>
+    <string name="no_internet_connection">אין חיבור אינטרנט</string>
+    <string name="summary_message">הרישום עבר בהצלחה\n\nבלוטוס הרכב: %1$s\nמספר רכב: %2$s\nמספר טלפון: %3$s</string>
+
+    <!-- Quick Disarm Activity -->
+    <string name="add_car">הוסף רכב</string>
+    <string name="please_add_a_car_first">נא להוסיף מכונית</string>
+    <string name="number_of_configured_cars">מספר מכוניות שמורות: %1$d</string>
+    <string name="failed_to_acquire_missing_permissions">לא ניתנו הרשאות הכרחיות</string>
+    <string name="connect">התחבר</string>
+    <string name="connecting_to_device">מתחבר…</string>
+    <string name="discovering_device">סורק את המכשיר…</string>
+    <string name="reading_random">קורא נתונים…</string>
+    <string name="disarm">נטרל</string>
+    <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטוס</string>
+</resources>

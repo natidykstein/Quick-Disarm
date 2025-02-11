@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447314223228",
+    "project_id": "quickdisarm-app-b665b",
+    "storage_bucket": "quickdisarm-app-b665b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447314223228:android:3954e8c0070ac62d4969f9",
+        "android_client_info": {
+          "package_name": "com.quick.disarm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqe9BikqwXIIZSwRYXGnil3ZXofVjB0zo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

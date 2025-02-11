@@ -22,6 +22,8 @@ import java.util.Objects;
  */
 public class DisarmService extends JobIntentService implements DisarmStateListener {
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
+    public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
+
 
     private static final int JOB_ID = 1;
 
@@ -45,16 +47,18 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
         // to be on the safe side we limit it to 10 seconds
         mWakeLock.acquire(10_000);
 
-        mDisarmStartTime = System.currentTimeMillis();
+        // Get the start time as measured by the bluetooth broadcast receiver
+        mDisarmStartTime = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
             final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
             final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
+            ILog.d("Connecting to " + connectedCar + "'s bluetooth(" + carBluetoothMac + ")");
             connectToDevice(connectedCar);
         } else {
-            ILog.e("Bluetooth is not supported on this device");
+            ILog.logException("Bluetooth is not supported on this device");
             mWakeLock.release();
         }
     }
@@ -73,12 +77,14 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
 
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
-        if (Objects.requireNonNull(newState) == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
+        if (Objects.requireNonNull(newState, "DisarmStatus new state must not be null") == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
             ILog.d("Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }
         if (newState == DisarmStatus.DISARMED) {
-            ILog.d("Successfully disarmed device in " + (System.currentTimeMillis() - mDisarmStartTime) + "ms");
+            final long duration = System.currentTimeMillis() - mDisarmStartTime;
+            ILog.d("Successfully disarmed device in " + duration + "ms");
+            Analytics.reportEvent("disarm_success", "duration", String.valueOf(duration));
             mWakeLock.release();
         }
     }

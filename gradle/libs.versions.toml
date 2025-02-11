@@ -1,5 +1,6 @@
 [versions]
 agp = "8.8.0"
+firebaseBom = "33.9.0"
 gson = "2.10.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -7,12 +8,13 @@ espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
 rootbeerLib = "0.1.0"
-securityCrypto = "1.0.0"
-securityCryptoVersion = "1.1.0-alpha06"
 volley = "1.2.1"
 xmltojson = "1.5.3"
 
 [libraries]
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -20,8 +22,6 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 rootbeer-lib = { module = "com.scottyab:rootbeer-lib", version.ref = "rootbeerLib" }
-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
-security-crypto-v110alpha06 = { module = "androidx.security:security-crypto", version.ref = "securityCryptoVersion" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
 xmltojson = { module = "com.github.smart-fun:XmlToJson", version.ref = "xmltojson" }
 

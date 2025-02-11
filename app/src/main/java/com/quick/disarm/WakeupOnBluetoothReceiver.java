@@ -5,23 +5,21 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
+import com.quick.disarm.infra.ILog;
 import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.Set;
 
 @SuppressLint("MissingPermission")
 public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
-    private static final String TAG = WakeupOnBluetoothReceiver.class.getSimpleName();
-
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null) {
-                Log.d(TAG, "Detected Bluetooth connected to device: " + device.getName() + "(" + device.getAddress() + ")");
+                ILog.d("Detected Bluetooth connected to device: " + device.getName() + "(" + device.getAddress() + ")");
             }
 
             if (device != null) {
@@ -31,20 +29,21 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 final String connectedCarBluetoothMac =
                         getConnectedBluetoothMac(device.getAddress(), bluetoothSet);
                 if (connectedCarBluetoothMac != null) {
+                    ILog.d("Connected to car's configured bluetooth, starting disarm service...");
                     // Offload disarming to intent service
                     final Intent serviceIntent = new Intent(context, DisarmService.class);
                     serviceIntent.putExtra(DisarmService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
+                    serviceIntent.putExtra(DisarmService.EXTRA_START_TIME, System.currentTimeMillis());
                     DisarmService.enqueueWork(context, serviceIntent);
                 }
             }
         } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null) {
-                Log.d(TAG, "Detected Bluetooth disconnected from device: " + device.getName() + "(" + device.getAddress() + ")");
+                ILog.d("Detected Bluetooth disconnected from device: " + device.getName() + "(" + device.getAddress() + ")");
             }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-            Log.d(TAG, "Device booted, re-register the BluetoothReceiver if necessary");
-            // Re-register the receiver if needed
+            ILog.d("Device booted");
         }
     }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Quick Disarm</string>
+    <string name="app_name" translatable="false">Quick Disarm</string>
 
     <!-- Registration pages -->
     <string name="please_select_your_car_s_bluetooth">Please select your car\'s bluetooth</string>

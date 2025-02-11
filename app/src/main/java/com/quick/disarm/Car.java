@@ -1,12 +1,14 @@
 package com.quick.disarm;
 
 public class Car {
+    private final String mPhoneNumber;
     private final String mLicensePlate;
     private final String mStarlinkMac;
     private final int mStarlinkSerial;
     private final String mIturanCode;
 
-    public Car(String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
+    public Car(String phoneNumber, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
+        mPhoneNumber = phoneNumber;
         mLicensePlate = licensePlate;
         mStarlinkMac = convertToValidMac(starlinkMac);
         mStarlinkSerial = starLinkSerial;
@@ -21,6 +23,10 @@ public class Car {
             if (i != 5) stringBuilder.append(':');
         }
         return stringBuilder.toString();
+    }
+
+    public String getPhoneNumber() {
+        return mPhoneNumber;
     }
 
     public String getLicensePlate() {
@@ -41,11 +47,6 @@ public class Car {
 
     @Override
     public String toString() {
-        return "Car{" +
-                "licensePlate='" + mLicensePlate + '\'' +
-                ", starlinkMac='" + mStarlinkMac + '\'' +
-                ", starLinkSerial=" + mStarlinkSerial +
-                ", ituranCode='" + mIturanCode + '\'' +
-                '}';
+        return "Car(" + mLicensePlate + ")";
     }
 }

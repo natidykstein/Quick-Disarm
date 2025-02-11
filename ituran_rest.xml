@@ -1,0 +1,176 @@
+																	------------- ACTIVATION URLS ----------------
+PIXEL_9_ORIGINAL_UUID_GENERATED_BY_ITURAN = ac2277bd0e024ec7
+PIXEL_9_DEVICE_UUID_GENERATED_BY_QUICK_DISARM = b2e8f6a23828f3a6
+PIXEL_9_DEVICE_UUID_GENERATED_BY_MBK_ITURAN = dfbb25bd0078b886
+PIXEL_7_ORIGINAL_UUID_GENERATED_BY_ITURAN = f18e7f1218d7dd82
+PLATFORM_ID = 3413856
+PIN = 2233
+
+// Check if activated
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/MBKcheckIfRegistered?Plate=76579403&PhoneNumber=0548040884
+
+// RESULT:
+<MBKisRegisteredAnswer xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnError>OK</ReturnError>
+<RegistryStatus>1</RegistryStatus>
+<IsActivated>true</IsActivated>
+</MBKisRegisteredAnswer>
+
+
+// Send the OTP to the phone number registered on Ituran server
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/MBKactivation?Plate=76579403&PhoneNumber=0548040884&Key=ac2277bd0e024ec7
+
+// RESULT:
+<MBKActivationAnswer xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnError>OK</ReturnError>
+<DidRecognizeOwner>true</DidRecognizeOwner>
+<PlatId>3413856</PlatId> // Named 'platformId' and acts as username in some queries
+</MBKActivationAnswer>
+
+
+// Verify OTP and get back the Starlink Serial + Mac Address
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/MBKSerializationRequest?Plate=76579403&PhoneNumber=0548040884&OTPcode=?????
+
+// RESULT:
+<MBKSerializationRequestAnswer xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnError>OK</ReturnError>
+<MacAddress>D01FDDC2372D</MacAddress>
+<Serial>2276181</Serial>
+</MBKSerializationRequestAnswer>
+
+
+// Get known drivers
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/MBKgetApprovedDrivers?Plate=76579403&MBkey=b2e8f6a23828f3a6
+
+// RESULT:
+<MBKdriverList xmlns="http://www.ituran.com/IturanMobileService">
+<Drivers>
+<MBKdriverDetails>
+<DriverId>552278693</DriverId>
+<PhoneNumber>0528348900</PhoneNumber>
+<FirstName>עינת</FirstName>
+<LastName>דיקשטיין</LastName>
+</MBKdriverDetails>
+</Drivers>
+</MBKdriverList>
+
+
+// Get platform commands
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/GetPlatformCommands?platformId=3413856&UserName=3413856&Password=2233
+
+// RESULT:
+<Commands xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnCode>OK</ReturnCode>
+<ErrorDescription/>
+<PlatformId>3413856</PlatformId>
+<Username/>
+<RequestGUID/>
+<commandList>
+<Command>
+<MethodId>109659</MethodId>
+<MethodName>Disarm CIA</MethodName>
+<MethodLabel>נטרול CIA</MethodLabel>
+<field_order>0</field_order>
+<Prompt/>
+<AllowFreeValue>false</AllowFreeValue>
+<number_of_selection_values>0</number_of_selection_values>
+<Start/>
+<Length/>
+<Value>153,2,"RSDE555"</Value>
+<CharacterClass/>
+<Quantifier/>
+<Name>Data</Name>
+<Label>Data</Label>
+<MessageType>3</MessageType>
+</Command>
+</commandList>
+<HasToChangePassword>false</HasToChangePassword>
+</Commands>
+
+
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/MbkDisarm?platformId=3413856&UserName=3413856&Password=2233
+
+// RESULT:
+<CommandResult2 xmlns="http://www.ituran.com/IturanMobileService">
+<Error>OK</Error>
+<ErrorDescription/>
+<GUIDs>
+<string>545c7a20-b522-4358-a645-e84f563445f0</string>
+</GUIDs>
+<Units>
+<string>51.2.3.51</string>
+</Units>
+<GUID_errors>
+<string>OK</string>
+</GUID_errors>
+<HasToChangePassword>false</HasToChangePassword>
+</CommandResult2>
+
+
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/CheckCommandResult?GUID=545c7a20-b522-4358-a645-e84f563445f0&UserName=3413856&Password=2233
+
+// RESULT: (If not invoked quickly we'll will get a 'Timeout' response instead)
+<string xmlns="http://www.ituran.com/IturanMobileService">OK</string>
+
+
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/PlatformSendCommand?platformId=3413856&MethodId=109659&parameters=53,2,"RSDE555"&UserName=3413856&Password=2233
+
+// RESULT:
+<Commands xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnCode>OK</ReturnCode>
+<ErrorDescription/>
+<PlatformId>3413856</PlatformId>
+<Username/>
+<RequestGUID>5d14d964-755a-4d2b-88d1-b9a131300e5a</RequestGUID>
+<commandList/>
+<HasToChangePassword>false</HasToChangePassword>
+</Commands>
+
+
+// Get user platforms
+https://www.ituran.com/ituranmobileservice/mobileservice.asmx/GetUserPlatforms?GetAddress=true&UserName=3413856&Password=2233
+
+// RESULT:<ServiceListPlatformsDetails xmlns="http://www.ituran.com/IturanMobileService">
+<ReturnCode>OK</ReturnCode>
+<ErrorDescription/>
+<Username>3413856</Username>
+<VehList>
+<Veh>
+<PlatformId>3413856</PlatformId>
+<Plate>76579403</Plate>
+<Label>76579403</Label>
+<Symbol>0</Symbol>
+<Lat>32.163517999999996</Lat>
+<Lon>34.846429</Lon>
+<Speed>0</Speed>
+<LastMileage>8509.40</LastMileage>
+<Head>319</Head>
+<Address>מזא'ה 3, הרצליה</Address>
+<Date>2025-01-08T11:27:00</Date>
+<CustomerDriverID>552278272</CustomerDriverID>
+<driverId>2233</driverId>
+<driverName>דיקשטיין נתנאל</driverName>
+<driverphone>0548040884</driverphone>
+<IsSafety>false</IsSafety>
+<IsRfUnit>false</IsRfUnit>
+<Units>
+<Unit>
+<PocsagStr>51.2.3.51</PocsagStr>
+<Services>
+<Service>
+<ProductName>MB KEY SK</ProductName>
+</Service>
+</Services>
+</Unit>
+</Units>
+<BatteryVoltage>-1</BatteryVoltage>
+<BatteryVoltageDate>0001-01-01T00:00:00</BatteryVoltageDate>
+<Model>G9 חשמלי</Model>
+<Make>XPENG</Make>
+</Veh>
+</VehList>
+<Timelast>total=93<br>Details:</Timelast>
+<HasToChangePassword>false</HasToChangePassword>
+<UrlRedirectMode>OFF</UrlRedirectMode>
+<UrlToRedirectTo/>
+</ServiceListPlatformsDetails>

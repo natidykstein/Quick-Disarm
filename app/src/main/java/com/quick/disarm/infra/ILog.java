@@ -2,6 +2,7 @@ package com.quick.disarm.infra;
 
 import android.util.Log;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.quick.disarm.BuildConfig;
 import com.quick.disarm.infra.network.volley.VolleyUtils;
 
@@ -45,6 +46,10 @@ public class ILog {
 
     public static void logException(Throwable t, boolean report) {
         e(t.toString());
+
+        if (report && shouldReport(t)) {
+            FirebaseCrashlytics.getInstance().recordException(t);
+        }
     }
 
     public static void logException(Throwable t) {
@@ -90,6 +95,8 @@ public class ILog {
             //add class and method data to logText
             logText = "T:" + threadName + " " + className + "->" + element.getMethodName() + "(): " + logText;
         }
+
+        FirebaseCrashlytics.getInstance().log(logText);
 
         if (shouldLogToConsole()) {
             switch (logLevel) {

@@ -4,16 +4,15 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import com.quick.disarm.infra.ILog;
 
 import java.util.UUID;
 
 @SuppressLint("MissingPermission")
 public class StartLinkGattCallback extends BluetoothGattCallback {
-    private static final String TAG = StartLinkGattCallback.class.getSimpleName();
-
     public static final UUID CONFIGURATION_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final UUID GET_RESULT_UUID = UUID.fromString("2445524D-37EA-11E4-90C4-D421C4C8CC12");
     public static final UUID RANDOM_NUMBER_UUID = UUID.fromString("2445524D-37EA-11E4-90C4-D421C4C8CC13");
@@ -34,10 +33,10 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothGatt.STATE_CONNECTED) {
             setDisarmStatus(DisarmStateListener.DisarmStatus.DEVICE_CONNECTED);
-            Log.d(TAG, "Connected to device's GATT server");
+            ILog.d("Connected to device's GATT server");
             gatt.discoverServices();
         } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-            Log.d(TAG, "Disconnected from GATT server");
+            ILog.d("Disconnected from GATT server");
             setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
         }
     }
@@ -45,12 +44,12 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            Log.d(TAG, "Discovering device completed - attempting to read random...");
+            ILog.d( "Discovering device completed - attempting to read random...");
             setDisarmStatus(DisarmStateListener.DisarmStatus.DEVICE_DISCOVERED);
             StarlinkCommandDispatcher.get().init(gatt, mConnectedCar);
             StarlinkCommandDispatcher.get().dispatchReadRandomCommand();
         } else {
-            Log.w(TAG, "onServicesDiscovered received status: " + status);
+            ILog.w( "onServicesDiscovered received status: " + status);
             setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
         }
     }
@@ -59,15 +58,15 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
-                Log.d(TAG, "Random read successfully");
+                ILog.d( "Random read successfully");
                 StarlinkCommandDispatcher.get().setRandom(value);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.RANDOM_READ_SUCCESSFULLY);
             } else {
-                Log.w(TAG, "Got characteristic read from unknown uuid: " + characteristic.getUuid());
+                ILog.w( "Got characteristic read from unknown uuid: " + characteristic.getUuid());
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
             }
         } else {
-            Log.w(TAG, "onCharacteristicRead received status: " + status);
+            ILog.w( "onCharacteristicRead received status: " + status);
             setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
         }
     }
@@ -76,14 +75,14 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         if (characteristic.getUuid().equals(SEND_COMMAND_UUID)) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "Write successful for send command");
+                ILog.d( "Write successful for send command");
                 setDisarmStatus(DisarmStateListener.DisarmStatus.DISARMED);
             } else {
-                Log.w(TAG, "Write failed on characteristic: " + characteristic.getUuid() + " with status " + status);
+                ILog.logException( "Write failed on characteristic: " + characteristic.getUuid() + " with status " + status);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
             }
         } else {
-            Log.w(TAG, "Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status " + status);
+            ILog.w( "Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status " + status);
         }
     }
 
@@ -99,7 +98,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
 
     // PENDING: To we really need to do anything here?
     private void internalOnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
-        Log.d(TAG, "internalOnCharacteristicChanged()");
+        ILog.d( "internalOnCharacteristicChanged()");
 
         if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
             StarlinkCommandDispatcher.get().setRandom(value);
@@ -109,7 +108,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
             final byte resultByte = value.length == 1 ? value[0] : characteristic.getValue()[0];
 
             // PENDING: Update with result after writing value
-            Log.d(TAG, "Got result with value " + resultByte);
+            ILog.d( "Got result with value " + resultByte);
         }
     }
 

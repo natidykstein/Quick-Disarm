@@ -9,12 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.quick.disarm.Analytics;
 import com.quick.disarm.R;
 import com.quick.disarm.infra.ILog;
 
@@ -23,9 +23,8 @@ import java.util.List;
 
 public class DetectCarBluetoothActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private BluetoothDeviceAdapter adapter;
-    private List<BluetoothDeviceItem> bluetoothDevices = new ArrayList<>();
+    private final List<BluetoothDeviceItem> bluetoothDevices = new ArrayList<>();
     private BluetoothAdapter bluetoothAdapter;
 
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
@@ -50,17 +49,16 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detect_car_bluetooth);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        adapter = new BluetoothDeviceAdapter(bluetoothDevices, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final BluetoothDeviceItem device = (BluetoothDeviceItem) view.getTag();
-                final Intent startRegisterActivityIntent = new Intent(DetectCarBluetoothActivity.this, RegisterActivity.class);
-                startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_NAME, device.getName());
-                startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_MAC, device.getAddress());
-                startActivity(startRegisterActivityIntent);
-                finish();
-            }
+        final RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        adapter = new BluetoothDeviceAdapter(bluetoothDevices, view -> {
+            final BluetoothDeviceItem device = (BluetoothDeviceItem) view.getTag();
+            Analytics.reportSelectButtonEvent("select_bluetooth", device.getName());
+
+            final Intent startRegisterActivityIntent = new Intent(DetectCarBluetoothActivity.this, RegisterActivity.class);
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_NAME, device.getName());
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_MAC, device.getAddress());
+            startActivity(startRegisterActivityIntent);
+            finish();
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

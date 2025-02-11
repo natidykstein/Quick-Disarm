@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.VolleyError;
+import com.quick.disarm.Analytics;
 import com.quick.disarm.Car;
 import com.quick.disarm.QuickDisarmApplication;
 import com.quick.disarm.R;
@@ -85,6 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupPage1() {
         final Button buttonNext1 = findViewById(R.id.buttonNext1);
         buttonNext1.setOnClickListener(view -> {
+            Analytics.reportSelectButtonEvent("next_page1", "Next");
             licensePlate = editTextLicensePlate.getText().toString().trim();
             phoneNumber = editTextPhoneNumber.getText().toString().trim();
             ituranCode = editTextIturanCode.getText().toString().trim();
@@ -142,7 +144,7 @@ public class RegisterActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
 
         if (Utils.isConnectedToNetwork(RegisterActivity.this)) {
-            ILog.e(errorMessage);
+            ILog.logException(errorMessage);
             Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(RegisterActivity.this, R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
@@ -157,6 +159,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupPage2() {
         buttonNext2.setOnClickListener(view -> {
+            Analytics.reportSelectButtonEvent("next_page2", "Next");
             verificationCode = editTextVerificationCode.getText().toString().trim();
             if (validatePage2()) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -191,7 +194,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
-        final Car car = new Car(licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
+        final Car car = new Car(phoneNumber, phoneNumber, starlinkMacAddress, starlinkSerial, ituranCode);
         final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
         PreferenceCache.get(this).addCar(carBluetoothMac, car);
         ILog.d("Added " + car);
@@ -212,11 +215,9 @@ public class RegisterActivity extends AppCompatActivity {
         textViewSummary.setText(getString(R.string.summary_message, carBluetoothName, licensePlate, phoneNumber));
 
         final Button buttonDone = findViewById(R.id.buttonDone);
-        buttonDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
+        buttonDone.setOnClickListener(v -> {
+            Analytics.reportSelectButtonEvent("done", "Done");
+            finish();
         });
     }
 
@@ -253,8 +254,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                         // Insert extracted code if not empty
                         if (smsCode.length() > 0) {
+                            ILog.d("Auto inserting OTP received via sms: " + smsCode);
                             editTextVerificationCode.setText(smsCode.toString());
                             buttonNext2.callOnClick();
+                        } else {
+                            ILog.w("Failed to parse OTP received via sms: " + messageBody);
                         }
                     }
                 }
@@ -266,8 +270,10 @@ public class RegisterActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == SMS_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            ILog.d("Sms permission granted");
             Toast.makeText(this, R.string.sms_permission_granted, Toast.LENGTH_SHORT).show();
         } else {
+            ILog.d("Sms permission not granted");
             Toast.makeText(this, R.string.sms_permission_not_granted, Toast.LENGTH_SHORT).show();
         }
     }

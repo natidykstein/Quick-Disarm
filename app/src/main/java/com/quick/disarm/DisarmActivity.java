@@ -98,7 +98,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mProgressBar = findViewById(R.id.progress_bar);
 
         if (hasRequiredPermissions()) {
-            setDisarmStatus(DisarmStatus.READY_TO_CONNECT);
+            setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
         } else {
             requestNeededPermissions();
         }
@@ -153,7 +153,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void connectToDevice() {
-        setDisarmStatus(DisarmStatus.CONNECTING_TO_DEVICE);
+        setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.CONNECTING_TO_DEVICE);
 
         // PENDING: In the activity we need to allow selecting the car to which we want to connect and disarm
         //  Currently we're taking the first car
@@ -169,7 +169,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
-        setDisarmStatus(newState);
+        setDisarmStatus(currentState, newState);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         if (requestCode == PERMISSIONS_REQUEST) {
             if (grantResults.length == 3 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
                 ILog.d("Got required permissions");
-                setDisarmStatus(DisarmStatus.READY_TO_CONNECT);
+                setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
             } else {
                 final String errorMessage = getString(R.string.failed_to_acquire_missing_permissions);
                 Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
@@ -188,11 +188,15 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         }
     }
 
-    private void setDisarmStatus(final DisarmStatus disarmStatus) {
-        mDisarmStatus = disarmStatus;
+    private void setDisarmStatus(final DisarmStatus currentStatus, final DisarmStatus newStatus) {
+        mDisarmStatus = newStatus;
         runOnUiThread(() -> {
-            switch (disarmStatus) {
+            switch (newStatus) {
                 case READY_TO_CONNECT:
+                    if (currentStatus == DisarmStatus.CONNECTING_TO_DEVICE) {
+                        ILog.e("Failed to connect to device");
+                        Toast.makeText(this, R.string.failed_connecting_to_device, Toast.LENGTH_SHORT).show();
+                    }
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);
                     mDisarmButton.setText(R.string.connect);

@@ -22,6 +22,7 @@
     <string name="summary_message">הרישום עבר בהצלחה\n\nבלוטוס הרכב: %1$s\nמספר רכב: %2$s\nמספר טלפון: %3$s</string>
 
     <!-- Quick Disarm Activity -->
+    <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטוס</string>
     <string name="add_car">הוסף רכב</string>
     <string name="please_add_a_car_first">נא להוסיף מכונית</string>
     <string name="number_of_configured_cars">מספר מכוניות שמורות: %1$d</string>
@@ -31,5 +32,5 @@
     <string name="discovering_device">סורק את המכשיר…</string>
     <string name="reading_random">קורא נתונים…</string>
     <string name="disarm">נטרל</string>
-    <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטוס</string>
+    <string name="failed_connecting_to_device">לא ניתן להתחבר למכשיר</string>
 </resources>

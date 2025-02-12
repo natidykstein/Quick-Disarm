@@ -81,6 +81,9 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
             ILog.d("Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }
+        if(currentState == DisarmStatus.CONNECTING_TO_DEVICE && newState == DisarmStatus.READY_TO_CONNECT) {
+            ILog.e("Failed to connect to device");
+        }
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;
             ILog.d("Successfully disarmed device in " + duration + "ms");

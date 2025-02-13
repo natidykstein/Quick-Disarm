@@ -20,10 +20,11 @@ import java.util.Objects;
 /**
  * @noinspection deprecation
  */
-public class DisarmService extends JobIntentService implements DisarmStateListener {
+public class DisarmJobIntentService extends JobIntentService implements DisarmStateListener {
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
 
+    public static final String ACTION_DISARM = "com.quick.disarm.action.DISARM";
 
     private static final int JOB_ID = 1;
 
@@ -32,7 +33,7 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
     private long mDisarmStartTime;
 
     public static void enqueueWork(Context context, Intent intent) {
-        enqueueWork(context, DisarmService.class, JOB_ID, intent);
+        enqueueWork(context, DisarmJobIntentService.class, JOB_ID, intent);
     }
 
     @Override
@@ -81,7 +82,7 @@ public class DisarmService extends JobIntentService implements DisarmStateListen
             ILog.d("Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }
-        if(currentState == DisarmStatus.CONNECTING_TO_DEVICE && newState == DisarmStatus.READY_TO_CONNECT) {
+        if (currentState == DisarmStatus.CONNECTING_TO_DEVICE && newState == DisarmStatus.READY_TO_CONNECT) {
             ILog.e("Failed to connect to device");
         }
         if (newState == DisarmStatus.DISARMED) {

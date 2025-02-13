@@ -48,6 +48,7 @@
 
         <activity android:name=".register.DetectCarBluetoothActivity" />
         <activity android:name=".register.RegisterActivity" />
+        <activity android:name=".AuthenticationActivity" />
 
         <!-- Register the receiver -->
         <receiver
@@ -61,7 +62,7 @@
         </receiver>
 
         <service
-            android:name=".DisarmService"
+            android:name=".DisarmJobIntentService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>

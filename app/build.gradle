@@ -72,6 +72,7 @@ dependencies {
     implementation libs.material
     implementation libs.volley
     implementation libs.rootbeer.lib
+    implementation libs.biometric
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

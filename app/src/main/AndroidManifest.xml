@@ -61,9 +61,10 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".JobIntentReceiver" />
+
         <service
             android:name=".DisarmJobIntentService"
-            android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

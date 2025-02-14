@@ -73,6 +73,8 @@ dependencies {
     implementation libs.volley
     implementation libs.rootbeer.lib
     implementation libs.biometric
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

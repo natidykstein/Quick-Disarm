@@ -24,16 +24,18 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
 
-    public static final String ACTION_DISARM = "com.quick.disarm.action.DISARM";
-
     private static final int JOB_ID = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
     private PowerManager.WakeLock mWakeLock;
     private long mDisarmStartTime;
 
-    public static void enqueueWork(Context context, Intent intent) {
-        enqueueWork(context, DisarmJobIntentService.class, JOB_ID, intent);
+    public static void enqueueWork(Context context, String connectedCarBluetoothMac) {
+        ILog.d("Starting disarm service...");
+        final Intent serviceIntent = new Intent(context, DisarmJobIntentService.class);
+        serviceIntent.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
+        serviceIntent.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
+        enqueueWork(context, DisarmJobIntentService.class, JOB_ID, serviceIntent);
     }
 
     @Override
@@ -56,8 +58,13 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
         if (mBluetoothAdapter != null) {
             final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
             final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
-            ILog.d("Connecting to " + connectedCar + "'s bluetooth(" + carBluetoothMac + ")");
-            connectToDevice(connectedCar);
+            if (connectedCar != null) {
+                ILog.d("Connecting to " + connectedCar + "'s Ituran...");
+                connectToDevice(connectedCar);
+            } else {
+                ILog.logException(new RuntimeException("No car found for bluetooth device with address [" + carBluetoothMac + "]"));
+                mWakeLock.release();
+            }
         } else {
             ILog.logException("Bluetooth is not supported on this device");
             mWakeLock.release();

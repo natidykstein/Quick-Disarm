@@ -36,6 +36,10 @@ import java.util.Set;
  *  8. Allow deleting a car
  *  9. Add new google maps activity for tracking a car
  *  10. Show toast when performing disarm (allow setting this by the user to on/off)
+ *  11. Allow user to select between 3 levels of authentication - App, device or none.
+ *      App(most secured) - Each app open will require an authentication
+ *      Device(normal/default) - The device must be unlocked to allow disarming
+ *      None(less secured) - Car can be disarmed in the background while the device is locked
  * <p>
  */
 @SuppressLint("MissingPermission")
@@ -44,7 +48,11 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSIONS_REQUEST = 1000;
 
-    private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.POST_NOTIFICATIONS};
 
     private BluetoothAdapter bluetoothAdapter;
 
@@ -144,7 +152,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             return false;
         } else {
-            return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) && hasPermission(Manifest.permission.BLUETOOTH_SCAN) && hasPermission(Manifest.permission.BLUETOOTH_CONNECT);
+            for (String permission : REQUIRED_PERMISSIONS) {
+                if (!hasPermission(permission)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -176,7 +189,11 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSIONS_REQUEST) {
-            if (grantResults.length == 3 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length == REQUIRED_PERMISSIONS.length &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[2] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                 ILog.d("Got required permissions");
                 setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
             } else {

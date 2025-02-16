@@ -20,8 +20,6 @@ import java.util.Set;
 public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "QuickDisarmChannel";
 
-    private AuthLevel mAuthLevel;
-
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
@@ -41,12 +39,13 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 if (connectedCarBluetoothMac != null) {
                     ILog.d("Connected to car's configured bluetooth");
 
-                    mAuthLevel = PreferenceCache.get(context).getAuthenticationLevel();
-                    if (mAuthLevel == AuthLevel.NONE) {
-                        ILog.d("Auth level is NONE - starting disarm service in the background");
+                    boolean allowBackgroundDisarm = PreferenceCache.get(context).isAllowBackgroundDisarm();
+                    if (allowBackgroundDisarm) {
+                        ILog.d("Background disarm is allowed - starting disarm service in the background");
                         // Offload disarming to intent service
                         DisarmJobIntentService.enqueueWork(context, connectedCarBluetoothMac);
                     } else {
+                        ILog.d("Background disarm is not allowed - notification will start disarm service");
                         // Show notification before starting to disarm
                         showAuthenticationRequiredNotification(context, connectedCarBluetoothMac);
                     }
@@ -93,19 +92,10 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     }
 
     private PendingIntent getPendingIntent(Context context, String connectedCarBluetoothMac) {
-        if (mAuthLevel == AuthLevel.APP) {
-            ILog.d("Auth level is APP - notification will start authentication activity");
-            final Intent startAuthActivityIntent = new Intent(context, AuthenticationActivity.class);
-            startAuthActivityIntent.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
-            startAuthActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            return PendingIntent.getActivity(context, 0, startAuthActivityIntent, PendingIntent.FLAG_IMMUTABLE);
-        } else {
-            ILog.d("Auth level is DEVICE - notification will start disarm service");
-            final Intent startJobIntentReceiver = new Intent(context, JobIntentReceiver.class);
-            startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
-            startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
-            return PendingIntent.getBroadcast(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
-        }
+        final Intent startJobIntentReceiver = new Intent(context, JobIntentReceiver.class);
+        startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
+        startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
+        return PendingIntent.getBroadcast(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void createNotificationChannel(Context context) {

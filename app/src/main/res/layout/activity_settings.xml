@@ -21,7 +21,7 @@
         android:textSize="16sp"
         android:layout_marginTop="12dp"
         android:layout_marginStart="8dp"
-        android:text="Please select your desired authentication level:" />
+        android:text="Please select authentication type:" />
 
     <RadioGroup
         android:id="@+id/radioGroup"
@@ -32,22 +32,13 @@
         android:orientation="vertical">
 
         <RadioButton
-            android:id="@+id/radioButtonApp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/ic_help"
-            android:drawablePadding="5dp"
-            android:tag="app"
-            android:text="App-Level Authentication" />
-
-        <RadioButton
             android:id="@+id/radioButtonDevice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableEnd="@drawable/ic_help"
             android:drawablePadding="5dp"
             android:tag="device"
-            android:text="Device-Level Authentication" />
+            android:text="Device Authentication" />
 
         <RadioButton
             android:id="@+id/radioButtonNone"

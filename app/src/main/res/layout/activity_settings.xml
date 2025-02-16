@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:padding="16dp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_settings"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme"
+        app:title="Settings" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="8dp"
+        android:text="Please select your desired authentication level:" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radioButtonApp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_help"
+            android:drawablePadding="5dp"
+            android:tag="app"
+            android:text="App-Level Authentication" />
+
+        <RadioButton
+            android:id="@+id/radioButtonDevice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_help"
+            android:drawablePadding="5dp"
+            android:tag="device"
+            android:text="Device-Level Authentication" />
+
+        <RadioButton
+            android:id="@+id/radioButtonNone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_help"
+            android:drawablePadding="5dp"
+            android:tag="none"
+            android:text="No Authentication" />
+
+    </RadioGroup>
+</LinearLayout>

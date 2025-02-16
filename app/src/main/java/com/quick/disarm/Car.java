@@ -49,4 +49,14 @@ public class Car {
     public String toString() {
         return "Car(" + mLicensePlate + ")";
     }
+
+    public String toStringExtended() {
+        return "Car{" +
+                "mPhoneNumber='" + mPhoneNumber + '\'' +
+                ", mLicensePlate='" + mLicensePlate + '\'' +
+                ", mStarlinkMac='" + mStarlinkMac + '\'' +
+                ", mStarlinkSerial=" + mStarlinkSerial +
+                ", mIturanCode='" + mIturanCode + '\'' +
+                '}';
+    }
 }

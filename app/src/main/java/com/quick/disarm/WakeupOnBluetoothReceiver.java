@@ -20,9 +20,7 @@ import java.util.Set;
 public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "QuickDisarmChannel";
 
-    private AuthLevel mAuthLevel = AuthLevel.DEVICE;
-
-    private enum AuthLevel {APP, DEVICE, NONE}
+    private AuthLevel mAuthLevel;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -33,7 +31,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 ILog.d("Connected to " + getLoggedString(device));
 
                 // TESTING
-                showAuthenticationRequiredNotification(context, device.getAddress());
+                // showAuthenticationRequiredNotification(context, device.getAddress());
 
                 final Set<String> bluetoothSet =
                         PreferenceCache.get(context).getCarBluetoothSet();
@@ -43,6 +41,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 if (connectedCarBluetoothMac != null) {
                     ILog.d("Connected to car's configured bluetooth");
 
+                    mAuthLevel = PreferenceCache.get(context).getAuthenticationLevel();
                     if (mAuthLevel == AuthLevel.NONE) {
                         ILog.d("Auth level is NONE - starting disarm service in the background");
                         // Offload disarming to intent service

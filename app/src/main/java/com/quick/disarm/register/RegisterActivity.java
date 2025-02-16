@@ -198,6 +198,9 @@ public class RegisterActivity extends AppCompatActivity {
         final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
         PreferenceCache.get(this).addCar(carBluetoothMac, car);
         ILog.d("Added " + car);
+
+        // PENDING: For now logging as exception for increased visibility
+        ILog.logException("Successfully registered " + car.toStringExtended());
     }
 
     private boolean validatePage2() {

@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.google.gson.reflect.TypeToken;
+import com.quick.disarm.AuthLevel;
 import com.quick.disarm.Car;
 
 import java.util.HashSet;
@@ -14,6 +15,7 @@ public class PreferenceCache {
     private static final String SHARED_PREFERENCES_FILE_NAME = "disarm_pref_cache";
 
     private static final String SPF_CAR_BLUETOOTH_LIST = "spf_car_bluetooth_list";
+    private static final String SPF_AUTH_LEVEL = "spf_auth_level";
 
 
     private static volatile PreferenceCache sInstance;
@@ -59,5 +61,13 @@ public class PreferenceCache {
         bluetoothList.add(bluetoothMac);
         setCarBluetoothSet(bluetoothList);
         mSharedPreferencesProxy.putObject(bluetoothMac, car);
+    }
+
+    public void setAuthenticationLevel(AuthLevel authLevel) {
+        mSharedPreferencesProxy.putString(SPF_AUTH_LEVEL, authLevel.toString());
+    }
+
+    public AuthLevel getAuthenticationLevel() {
+        return AuthLevel.valueOf(mSharedPreferencesProxy.getString(SPF_AUTH_LEVEL, AuthLevel.DEVICE.toString()));
     }
 }

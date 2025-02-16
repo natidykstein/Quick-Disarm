@@ -35,7 +35,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:localeConfig="@xml/locale_config"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
 
         <activity
             android:name=".DisarmActivity"
@@ -48,6 +48,7 @@
 
         <activity android:name=".register.DetectCarBluetoothActivity" />
         <activity android:name=".register.RegisterActivity" />
+        <activity android:name=".SettingsActivity" />
         <activity android:name=".AuthenticationActivity" />
 
         <!-- Register the receiver -->

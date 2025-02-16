@@ -21,6 +21,9 @@ import java.util.Objects;
  * @noinspection deprecation
  */
 public class DisarmJobIntentService extends JobIntentService implements DisarmStateListener {
+    // PENDING: Temporarily set to '0' for increased visibility -
+    private static final long TOLERABLE_DURATION_LIMIT = 0;//TimeUnit.SECONDS.toMillis(1);
+
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
 
@@ -62,7 +65,7 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
                 ILog.d("Connecting to " + connectedCar + "'s Ituran...");
                 connectToDevice(connectedCar);
             } else {
-                ILog.logException(new RuntimeException("No car found for bluetooth device with address [" + carBluetoothMac + "]"));
+                ILog.logException("No car found for bluetooth device with address [" + carBluetoothMac + "]");
                 mWakeLock.release();
             }
         } else {
@@ -74,7 +77,6 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
     @SuppressLint("MissingPermission")
     private void connectToDevice(Car connectedCar) {
         final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, connectedCar);
-
         final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
         device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
     }
@@ -94,9 +96,15 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
         }
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;
-            ILog.d("Successfully disarmed device in " + duration + "ms");
+            final String logMessage = "Successfully disarmed device in " + duration + "ms";
+            ILog.d(logMessage);
             Analytics.reportEvent("disarm_success", "duration", String.valueOf(duration));
             mWakeLock.release();
+
+            // Log as an exception for increased visibility
+            if (duration > TOLERABLE_DURATION_LIMIT) {
+                ILog.logException("Disarm device took longer than expected: " + duration + "ms");
+            }
         }
     }
 }

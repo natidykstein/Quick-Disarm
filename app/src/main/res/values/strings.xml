@@ -33,4 +33,15 @@
     <string name="bluetooth_not_supported_on_device">Bluetooth is not supported on this device</string>
     <string name="car_license_plate">Car License Plate</string>
     <string name="failed_connecting_to_device">Failed to connect to device</string>
+
+    <!-- Settings Activity -->
+    <string name="allow_auto_disarm">Allow automatic disarming</string>
+    <string name="auto_disarm_disclaimer">Ituran will automatically disarm in the background when your device connects to the car\'s Bluetooth, even if the device is locked.\n\nI acknowledge that this option allows anyone using my device to disarm the car\'s Ituran. I accept this risk, valuing convenience.</string>
+    <string name="auto_disarm_disclaimer_title">Allow automatic disarming</string>
+    <string name="auto_disarm_disclaimer_ok_button">I accept</string>
+    <string name="background_disarm_disclaimer_cancel_button">Forget it</string>
+    <string name="manual_disarm_title">Manual disarming</string>
+    <string name="manual_disarm_message">When your device connects to the car\'s bluetooth, simply tap the displayed notification to quickly disarm Ituran</string>
+    <string name="manual_disarm_ok_button">Got it</string>
+
 </resources>

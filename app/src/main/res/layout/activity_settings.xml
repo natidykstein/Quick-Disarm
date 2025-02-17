@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     android:padding="16dp">
 
     <androidx.appcompat.widget.Toolbar
@@ -15,39 +15,19 @@
         android:theme="?attr/actionBarTheme"
         app:title="Settings" />
 
-    <TextView
+    <CheckedTextView
+        android:id="@+id/checkedTextViewAllowAutoDisarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_marginTop="12dp"
         android:layout_marginStart="8dp"
-        android:text="Please select authentication type:" />
+        android:drawableLeft="?android:attr/listChoiceIndicatorMultiple"
+        android:gravity="center_vertical"
+        android:text="@string/allow_auto_disarm" />
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="8dp"
-        android:orientation="vertical">
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <RadioButton
-            android:id="@+id/radioButtonDevice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/ic_help"
-            android:drawablePadding="5dp"
-            android:tag="device"
-            android:text="Device Authentication" />
 
-        <RadioButton
-            android:id="@+id/radioButtonNone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/ic_help"
-            android:drawablePadding="5dp"
-            android:tag="none"
-            android:text="No Authentication" />
-
-    </RadioGroup>
 </LinearLayout>

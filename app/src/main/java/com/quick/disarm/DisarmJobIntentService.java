@@ -99,12 +99,13 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
             final String logMessage = "Successfully disarmed device in " + duration + "ms";
             ILog.d(logMessage);
             Analytics.reportEvent("disarm_success", "duration", String.valueOf(duration));
-            mWakeLock.release();
 
             // Log as an exception for increased visibility
             if (duration > TOLERABLE_DURATION_LIMIT) {
                 ILog.logException("Disarm device took longer than expected: " + duration + "ms");
             }
+
+            mWakeLock.release();
         }
     }
 }

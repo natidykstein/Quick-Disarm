@@ -14,7 +14,7 @@ public class PreferenceCache {
     private static final String SHARED_PREFERENCES_FILE_NAME = "disarm_pref_cache";
 
     private static final String SPF_CAR_BLUETOOTH_LIST = "spf_car_bluetooth_list";
-    private static final String SPF_ALLOW_BACKGROUND_DISARM = "spf_allow_background_disarm";
+    private static final String SPF_AUTO_DISARM_ENABLED = "spf_auto_disarm_enabled";
 
     private static volatile PreferenceCache sInstance;
 
@@ -61,11 +61,11 @@ public class PreferenceCache {
         mSharedPreferencesProxy.putObject(bluetoothMac, car);
     }
 
-    public void setAllowBackgroundDisarm(boolean allowBackgroundDisarm) {
-        mSharedPreferencesProxy.putBoolean(SPF_ALLOW_BACKGROUND_DISARM, allowBackgroundDisarm);
+    public void setAutoDisarmEnabled(boolean autoDisarmEnabled) {
+        mSharedPreferencesProxy.putBoolean(SPF_AUTO_DISARM_ENABLED, autoDisarmEnabled);
     }
 
-    public boolean isAllowBackgroundDisarm() {
-        return mSharedPreferencesProxy.getBoolean(SPF_ALLOW_BACKGROUND_DISARM, false);
+    public boolean isAutoDisarmEnabled() {
+        return mSharedPreferencesProxy.getBoolean(SPF_AUTO_DISARM_ENABLED, false);
     }
 }

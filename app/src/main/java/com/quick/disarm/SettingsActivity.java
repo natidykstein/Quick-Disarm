@@ -2,7 +2,7 @@ package com.quick.disarm;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.RadioButton;
+import android.widget.CheckedTextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +13,8 @@ import com.quick.disarm.utils.PreferenceCache;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private RadioButton mDeviceRadioButton;
+    private CheckedTextView mAutoDisarmEnabledCheckedTextView;
+    private boolean mAutoDisarmEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,48 +25,49 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mDeviceRadioButton = findViewById(R.id.radioButtonDevice);
-        final RadioButton noneRadioButton = findViewById(R.id.radioButtonNone);
+        mAutoDisarmEnabledCheckedTextView = findViewById(R.id.checkedTextViewAllowAutoDisarm);
 
-        final boolean allowBackgroundDisarm = PreferenceCache.get(this).isAllowBackgroundDisarm();
-        if (allowBackgroundDisarm) {
-            noneRadioButton.setChecked(true);
-        } else {
-            mDeviceRadioButton.setChecked(true);
-        }
+        mAutoDisarmEnabled = PreferenceCache.get(this).isAutoDisarmEnabled();
+        mAutoDisarmEnabledCheckedTextView.setSelected(mAutoDisarmEnabled);
 
         // Allow showing the description dialog when clicking on an already selected radio button
-        mDeviceRadioButton.setOnClickListener(v -> {
-            showDescription(mDeviceRadioButton.getText().toString());
-            PreferenceCache.get(this).setAllowBackgroundDisarm(false);
-            ILog.d("Authentication selected: " + mDeviceRadioButton.getText());
-        });
-
-        noneRadioButton.setOnClickListener(v -> {
-            showConfirmationDialog(noneRadioButton.getText().toString());
+        mAutoDisarmEnabledCheckedTextView.setOnClickListener(v -> {
+            if(mAutoDisarmEnabled) {
+                showManualDisarmDescription();
+                updateAutoDisarmEnabled(false);
+            } else {
+                showAutoDisarmConfirmationDialog();
+            }
         });
     }
 
-    private void showDescription(String title) {
+    private void updateAutoDisarmEnabled(boolean autoDisarmEnabled) {
+        ILog.d("Disarm mode: " + (autoDisarmEnabled ? "Don't " : "") + "allow in background");
+        mAutoDisarmEnabled = autoDisarmEnabled;
+        mAutoDisarmEnabledCheckedTextView.setSelected(mAutoDisarmEnabled);
+        mAutoDisarmEnabledCheckedTextView.setChecked(mAutoDisarmEnabled);
+        PreferenceCache.get(this).setAutoDisarmEnabled(autoDisarmEnabled);
+    }
+
+    private void showManualDisarmDescription() {
         new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage("Ituran will be disarmed by tapping a notification.\nWhen connected to the car simply tap the displayed notification to quickly disarm Ituran")
-                .setPositiveButton("OK", null)
+                .setTitle(R.string.manual_disarm_title)
+                .setMessage(R.string.manual_disarm_message)
+                .setPositiveButton(R.string.manual_disarm_ok_button, null)
                 .show();
     }
 
-    private void showConfirmationDialog(String title) {
+    private void showAutoDisarmConfirmationDialog() {
         new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage("Ituran will be disarmed automatically in the background while device is locked.\nI understand that this option allows anyone who's using my device to disarm my car's Ituran automatically and I use it on my own risk since I love living the easy life!")
-                .setPositiveButton("I understand", (dialog, which) -> {
-                    ILog.d("User accepted disclaimer, selecting 'None' authentication");
-                    PreferenceCache.get(SettingsActivity.this).setAllowBackgroundDisarm(true);
+                .setTitle(R.string.auto_disarm_disclaimer_title)
+                .setMessage(R.string.auto_disarm_disclaimer)
+                .setPositiveButton(R.string.auto_disarm_disclaimer_ok_button, (dialog, which) -> {
+                    ILog.d("User accepted auto disarm disclaimer");
+                    updateAutoDisarmEnabled(true);
                 })
-                .setNegativeButton("Forget it", (dialog, which) -> {
-                    ILog.d("User did not accept disclaimer - reverting to 'Device' authentication");
-                    mDeviceRadioButton.setChecked(true);
-                    PreferenceCache.get(SettingsActivity.this).setAllowBackgroundDisarm(false);
+                .setNegativeButton(R.string.background_disarm_disclaimer_cancel_button, (dialog, which) -> {
+                    ILog.d("User did not accept auto disarm disclaimer");
+                    updateAutoDisarmEnabled(false);
                 }).show();
     }
 

@@ -33,4 +33,14 @@
     <string name="reading_random">קורא נתונים…</string>
     <string name="disarm">נטרל</string>
     <string name="failed_connecting_to_device">לא ניתן להתחבר למכשיר</string>
+
+    <!-- Settings Activity -->
+    <string name="allow_auto_disarm">אפשר ניטרול אוטומטי</string>
+    <string name="auto_disarm_disclaimer">איתוראן ינוטרל אוטומטית כאשר המכשיר שלך יתחבר לבלוטות\' של הרכב, גם אם המכשיר נעול.אני מבין שבחירה זו מאפשרת לכל מי שמשתמש במכשיר שלי לנטרל את האיתוראן של הרכב, ואני מקבל את הסיכון הזה מתוך ערך לנוחות.</string>
+    <string name="auto_disarm_disclaimer_title">אפשר ניטרול אוטמטי</string>
+    <string name="auto_disarm_disclaimer_ok_button">אני מאשר</string>
+    <string name="background_disarm_disclaimer_cancel_button">אין מצב</string>
+    <string name="manual_disarm_title">ניטרול ידני</string>
+    <string name="manual_disarm_message">כאשר המכשיר מתחבר לבלוטות של הרכב, לחץ על ההודעה המוצגת ע״מ לנטרל את האיתוראן</string>
+    <string name="manual_disarm_ok_button">הבנתי</string>
 </resources>

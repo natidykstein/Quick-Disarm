@@ -39,13 +39,13 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 if (connectedCarBluetoothMac != null) {
                     ILog.d("Connected to car's configured bluetooth");
 
-                    boolean allowBackgroundDisarm = PreferenceCache.get(context).isAllowBackgroundDisarm();
-                    if (allowBackgroundDisarm) {
-                        ILog.d("Background disarm is allowed - starting disarm service in the background");
+                    boolean autoDisarmEnabled = PreferenceCache.get(context).isAutoDisarmEnabled();
+                    if (autoDisarmEnabled) {
+                        ILog.d("Auto disarm enabled - starting disarm service in the background");
                         // Offload disarming to intent service
                         DisarmJobIntentService.enqueueWork(context, connectedCarBluetoothMac);
                     } else {
-                        ILog.d("Background disarm is not allowed - notification will start disarm service");
+                        ILog.d("Auto disarm disabled - notification will start disarm service");
                         // Show notification before starting to disarm
                         showAuthenticationRequiredNotification(context, connectedCarBluetoothMac);
                     }

@@ -217,6 +217,9 @@ public class RegisterActivity extends AppCompatActivity {
         final String carBluetoothName = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_NAME);
         textViewSummary.setText(getString(R.string.summary_message, carBluetoothName, licensePlate, phoneNumber));
 
+        // Update analytics after a successful car registration
+        QuickDisarmApplication.initAnalytics(this);
+
         final Button buttonDone = findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(v -> {
             Analytics.reportSelectButtonEvent("done", "Done");

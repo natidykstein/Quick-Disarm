@@ -25,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.Utils;
 import com.quick.disarm.register.DetectCarBluetoothActivity;
@@ -124,11 +123,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     protected void onStart() {
         super.onStart();
 
-        // Refresh number when getting back to the activity
-        final int numberOfConfiguredCars = PreferenceCache.get(this).getCarBluetoothSet().size();
-        this.<TextView>findViewById(R.id.editTextDataSummary).setText(getString(R.string.number_of_configured_cars, numberOfConfiguredCars));
-
-        updateAnalyticsUser();
+        // Refresh when getting back to the activity
+        final Car selectedCar = getSelectedCar();
+        final String dataSummaryText = selectedCar != null ?
+                getString(R.string.added_cars, selectedCar.getLicensePlate()) :
+                getString(R.string.no_cars_added_yet);
+        this.<TextView>findViewById(R.id.editTextDataSummary).setText(dataSummaryText);
     }
 
     @Override
@@ -150,14 +150,6 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
     private boolean hasCarConfigured() {
         return !PreferenceCache.get(this).getCarBluetoothSet().isEmpty();
-    }
-
-    private void updateAnalyticsUser() {
-        final Car car = getSelectedCar();
-        if (car != null) {
-            FirebaseAnalytics.getInstance(this).setUserId(car.getPhoneNumber());
-            FirebaseAnalytics.getInstance(this).setUserProperty(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATE, car.getLicensePlate());
-        }
     }
 
     private Car getSelectedCar() {

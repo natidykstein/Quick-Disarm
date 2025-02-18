@@ -2,7 +2,7 @@
     <string name="app_name">Quick Disarm</string>
 
     <!-- Registration pages -->
-    <string name="please_select_your_car_s_bluetooth">אנא בחר את הבלוטוס של מכוניתך:</string>
+    <string name="please_select_your_car_s_bluetooth">אנא בחר את הבלוטות׳ של מכוניתך:</string>
     <string name="device_name">שם מכשיר</string>
     <string name="device_address">כתובת מכשיר</string>
     <string name="car_license_plate">מס׳ רכב</string>
@@ -19,13 +19,14 @@
     <string name="summary">סיכום</string>
     <string name="done">סיום</string>
     <string name="no_internet_connection">אין חיבור אינטרנט</string>
-    <string name="summary_message">הרישום עבר בהצלחה\n\nבלוטוס הרכב: %1$s\nמספר רכב: %2$s\nמספר טלפון: %3$s</string>
+    <string name="summary_message">הרישום עבר בהצלחה\n\nבלוטות׳ הרכב: %1$s\nמספר רכב: %2$s\nמספר טלפון: %3$s</string>
 
     <!-- Quick Disarm Activity -->
-    <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטוס</string>
+    <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטות׳</string>
     <string name="add_car">הוסף רכב</string>
     <string name="please_add_a_car_first">נא להוסיף מכונית</string>
-    <string name="number_of_configured_cars">מספר מכוניות שמורות: %1$d</string>
+    <string name="added_cars">מכוניות שמורות: %1$s</string>
+    <string name="no_cars_added_yet">אין מכוניות שמורות</string>
     <string name="failed_to_acquire_missing_permissions">לא ניתנו הרשאות הכרחיות</string>
     <string name="connect">התחבר</string>
     <string name="connecting_to_device">מתחבר…</string>
@@ -35,8 +36,9 @@
     <string name="failed_connecting_to_device">לא ניתן להתחבר למכשיר</string>
 
     <!-- Settings Activity -->
-    <string name="allow_auto_disarm">אפשר ניטרול אוטומטי</string>
-    <string name="auto_disarm_disclaimer">איתוראן ינוטרל אוטומטית כאשר המכשיר שלך יתחבר לבלוטות\' של הרכב, גם אם המכשיר נעול.אני מבין שבחירה זו מאפשרת לכל מי שמשתמש במכשיר שלי לנטרל את האיתוראן של הרכב, ואני מקבל את הסיכון הזה מתוך ערך לנוחות.</string>
+    <string name="settings_title">הגדרות</string>
+    <string name="allow_auto_disarm">ניטרול אוטומטי</string>
+    <string name="auto_disarm_disclaimer">איתוראן ינוטרל אוטומטית כאשר המכשיר שלך יתחבר לבלוטות\' של הרכב, גם אם המכשיר נעול.\n\nאני מבין שבחירה זו מאפשרת לכל מי שמחזיק במכשיר שלי לנטרל את האיתוראן של הרכב, ואני מקבל את הסיכון הזה מתוך ערך לנוחות.</string>
     <string name="auto_disarm_disclaimer_title">אפשר ניטרול אוטמטי</string>
     <string name="auto_disarm_disclaimer_ok_button">אני מאשר</string>
     <string name="background_disarm_disclaimer_cancel_button">אין מצב</string>

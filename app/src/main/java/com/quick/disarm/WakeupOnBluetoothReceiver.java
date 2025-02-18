@@ -45,7 +45,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                         // Offload disarming to intent service
                         DisarmJobIntentService.enqueueWork(context, connectedCarBluetoothMac);
                     } else {
-                        ILog.d("Auto disarm disabled - notification will start disarm service");
+                        ILog.d("Auto disarm disabled - showing disarm notification");
                         // Show notification before starting to disarm
                         showAuthenticationRequiredNotification(context, connectedCarBluetoothMac);
                     }
@@ -75,8 +75,6 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
         ILog.d("Showing authentication notification...");
         createNotificationChannel(context);
 
-        // PENDING: Replace 'false' with configured authentication level to select between
-        //  app level auth or device level auth
         final PendingIntent pendingIntent = getPendingIntent(context, connectedCarBluetoothMac);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)

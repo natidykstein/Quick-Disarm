@@ -5,10 +5,12 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.network.volley.IturanServerAPI;
 import com.quick.disarm.utils.PreferenceCache;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public final class QuickDisarmApplication extends Application {
@@ -28,29 +30,42 @@ public final class QuickDisarmApplication extends Application {
 
         IturanServerAPI.init(context);
 
-        initAnalytics();
+        initAnalytics(context);
     }
 
-    private void initAnalytics() {
-        Analytics.init(FirebaseAnalytics.getInstance(this));
+    public static void initAnalytics(Context context) {
+        Analytics.init(FirebaseAnalytics.getInstance(context));
 
-        final Car car = getAnyCar();
-        if (car != null) {
-            final String phoneNumber = car.getPhoneNumber();
+        final Car anyCar = getAnyCar(context);
+        if (anyCar != null) {
+            final String phoneNumber = anyCar.getPhoneNumber();
             if (phoneNumber != null) {
-                FirebaseAnalytics.getInstance(this).setUserId(phoneNumber);
+                FirebaseAnalytics.getInstance(context).setUserId(phoneNumber);
+                FirebaseCrashlytics.getInstance().setUserId(phoneNumber);
                 ILog.d("Set analytics users id = " + phoneNumber);
             } else {
                 ILog.w("Got a car without a phone number - due to an older app version");
             }
+
+            final Set<String> carBluetoothSet = PreferenceCache.get(context).getCarBluetoothSet();
+            final Set<String> licensePlates = new HashSet<>();
+            for (String bt : carBluetoothSet) {
+                final Car car = PreferenceCache.get(context).getCar(bt);
+                if (car != null) {
+                    licensePlates.add(car.getLicensePlate());
+                } else {
+                    ILog.e("Failed to get car for configured bt address: " + bt);
+                }
+            }
+            FirebaseAnalytics.getInstance(context).setUserProperty(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlates.toString());
         } else {
             ILog.d("No configured cars found - not setting analytics users id");
         }
     }
 
-    private Car getAnyCar() {
-        final Set<String> carBluetoothSet = PreferenceCache.get(this).getCarBluetoothSet();
+    private static Car getAnyCar(Context context) {
+        final Set<String> carBluetoothSet = PreferenceCache.get(context).getCarBluetoothSet();
         final String carBluetooth = !carBluetoothSet.isEmpty() ? carBluetoothSet.iterator().next() : null;
-        return carBluetooth != null ? PreferenceCache.get(this).getCar(carBluetooth) : null;
+        return carBluetooth != null ? PreferenceCache.get(context).getCar(carBluetooth) : null;
     }
 }

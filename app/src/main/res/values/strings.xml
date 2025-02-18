@@ -23,7 +23,8 @@
     <!-- Quick Disarm Activity -->
     <string name="add_car">Add car</string>
     <string name="please_add_a_car_first">Please add a car first</string>
-    <string name="number_of_configured_cars">Number of configured cars : %1$d</string>
+    <string name="added_cars">Added cars : %1$s</string>
+    <string name="no_cars_added_yet">No cars added yet</string>
     <string name="failed_to_acquire_missing_permissions">Failed to acquire needed permissions</string>
     <string name="connect">Connect</string>
     <string name="connecting_to_device">Connecting to device…</string>
@@ -35,8 +36,9 @@
     <string name="failed_connecting_to_device">Failed to connect to device</string>
 
     <!-- Settings Activity -->
-    <string name="allow_auto_disarm">Allow automatic disarming</string>
-    <string name="auto_disarm_disclaimer">Ituran will automatically disarm in the background when your device connects to the car\'s Bluetooth, even if the device is locked.\n\nI acknowledge that this option allows anyone using my device to disarm the car\'s Ituran. I accept this risk, valuing convenience.</string>
+    <string name="settings_title">Settings</string>
+    <string name="allow_auto_disarm">Automatic disarming</string>
+    <string name="auto_disarm_disclaimer">Ituran will automatically disarm in the background when your device connects to the car\'s Bluetooth, even if the device is locked.\n\nI acknowledge that this option allows anyone holding my device to disarm the car\'s Ituran. I accept this risk, valuing convenience.</string>
     <string name="auto_disarm_disclaimer_title">Allow automatic disarming</string>
     <string name="auto_disarm_disclaimer_ok_button">I accept</string>
     <string name="background_disarm_disclaimer_cancel_button">Forget it</string>

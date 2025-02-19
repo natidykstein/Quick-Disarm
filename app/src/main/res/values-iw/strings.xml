@@ -24,7 +24,7 @@
     <!-- Quick Disarm Activity -->
     <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטות׳</string>
     <string name="add_car">הוסף רכב</string>
-    <string name="please_add_a_car_first">נא להוסיף מכונית</string>
+F    <string name="please_add_a_car_first">אנא הוסף רכב תחילה</string>
     <string name="added_cars">מכוניות שמורות: %1$s</string>
     <string name="no_cars_added_yet">אין מכוניות שמורות</string>
     <string name="failed_to_acquire_missing_permissions">לא ניתנו הרשאות הכרחיות</string>

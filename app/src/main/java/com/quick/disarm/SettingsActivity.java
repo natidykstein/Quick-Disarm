@@ -28,7 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
         mAutoDisarmEnabledCheckedTextView = findViewById(R.id.checkedTextViewAllowAutoDisarm);
 
         mAutoDisarmEnabled = PreferenceCache.get(this).isAutoDisarmEnabled();
-        mAutoDisarmEnabledCheckedTextView.setSelected(mAutoDisarmEnabled);
+        mAutoDisarmEnabledCheckedTextView.setChecked(mAutoDisarmEnabled);
 
         // Allow showing the description dialog when clicking on an already selected radio button
         mAutoDisarmEnabledCheckedTextView.setOnClickListener(v -> {
@@ -44,7 +44,6 @@ public class SettingsActivity extends AppCompatActivity {
     private void updateAutoDisarmEnabled(boolean autoDisarmEnabled) {
         ILog.d("Disarm mode: " + (autoDisarmEnabled ? "Don't " : "") + "allow in background");
         mAutoDisarmEnabled = autoDisarmEnabled;
-        mAutoDisarmEnabledCheckedTextView.setSelected(mAutoDisarmEnabled);
         mAutoDisarmEnabledCheckedTextView.setChecked(mAutoDisarmEnabled);
         PreferenceCache.get(this).setAutoDisarmEnabled(autoDisarmEnabled);
     }

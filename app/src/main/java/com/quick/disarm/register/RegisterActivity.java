@@ -194,7 +194,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
-        final Car car = new Car(phoneNumber, phoneNumber, starlinkMacAddress, starlinkSerial, ituranCode);
+        final Car car = new Car(phoneNumber, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
         final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
         PreferenceCache.get(this).addCar(carBluetoothMac, car);
         ILog.d("Added " + car);

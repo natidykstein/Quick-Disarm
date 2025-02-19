@@ -21,11 +21,13 @@
     <string name="summary_message">Successfully registered\n\nCar\'s Bluetooth: %1$s\nLicense Plate: %2$s\nPhone Number: %3$s</string>
 
     <!-- Quick Disarm Activity -->
+    <string name="bluetooth_not_enabled">Bluetooth not enabled</string>
+    <string name="bluetooth_must_be_enabled">Bluetooth must be enabled!</string>
     <string name="add_car">Add car</string>
     <string name="please_add_a_car_first">Please add a car first</string>
     <string name="added_cars">Added cars : %1$s</string>
     <string name="no_cars_added_yet">No cars added yet</string>
-    <string name="failed_to_acquire_missing_permissions">Failed to acquire needed permissions</string>
+    <string name="failed_to_acquire_missing_permissions">Please add the missing permissions</string>
     <string name="connect">Connect</string>
     <string name="connecting_to_device">Connecting to device…</string>
     <string name="discovering_device">Discovering device…</string>

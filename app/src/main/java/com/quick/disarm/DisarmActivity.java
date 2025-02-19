@@ -2,14 +2,17 @@ package com.quick.disarm;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ComponentCaller;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -112,10 +116,14 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
         mProgressBar = findViewById(R.id.progress_bar);
 
+        handlePermissions();
+    }
+
+    private void handlePermissions() {
         if (hasRequiredPermissions()) {
             setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
         } else {
-            requestNeededPermissions();
+            askForRequiredPermissions();
         }
     }
 
@@ -158,24 +166,42 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         return carBluetooth != null ? PreferenceCache.get(this).getCar(carBluetooth) : null;
     }
 
-    private void requestNeededPermissions() {
+    private void askForRequiredPermissions() {
         ILog.d("Missing required permissions - asking now...");
         ActivityCompat.requestPermissions(DisarmActivity.this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST);
     }
 
+    /**
+     * Method verifies that bluetooth is enabled and app has all required permissions.
+     * If bluetooth not enabled an 'enable bluetooth' dialog will displayed to the user
+     * @return
+     */
     private boolean hasRequiredPermissions() {
-        if (!bluetoothAdapter.isEnabled()) {
-            final Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            return false;
+        if (bluetoothAdapter.isEnabled()) {
+            return hasAllRequiredPermissions();
         } else {
-            for (String permission : REQUIRED_PERMISSIONS) {
-                if (!hasPermission(permission)) {
-                    return false;
-                }
+            // It's kind of strange but we need BLUETOOTH_CONNECT permissions to display the
+            // 'enable bluetooth' dialog so we're asking for all the required permissions while we're at it.
+            if (hasAllRequiredPermissions()) {
+                // Only if we already have the required permissions we can display the 'enable bluetooth' dialog
+                ILog.w("Bluetooth not enabled - attempting to start activity to request bluetooth enable...");
+                Toast.makeText(DisarmActivity.this, R.string.bluetooth_not_enabled, Toast.LENGTH_SHORT).show();
+                final Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                return true;
             }
-            return true;
+
+            return false;
         }
+    }
+
+    private boolean hasAllRequiredPermissions() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (!hasPermission(permission)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean hasPermission(String permission) {
@@ -212,11 +238,35 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                     grantResults[2] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                 ILog.d("Got required permissions");
-                setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
+                if (hasRequiredPermissions()) {
+                    setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
+                }
             } else {
                 final String errorMessage = getString(R.string.failed_to_acquire_missing_permissions);
                 Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
                 ILog.d(errorMessage + " - exiting...");
+
+                // Open the App's permissions settings to allow the user to manually add the permissions
+                final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+
+                finish();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data, @NonNull ComponentCaller caller) {
+        super.onActivityResult(requestCode, resultCode, data, caller);
+
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                ILog.d("Bluetooth is enabled - re-verifying permissions...");
+                handlePermissions();
+            } else {
+                ILog.w("Bluetooth not enabled - exiting app");
+                Toast.makeText(this, R.string.bluetooth_must_be_enabled, Toast.LENGTH_SHORT).show();
                 finish();
             }
         }

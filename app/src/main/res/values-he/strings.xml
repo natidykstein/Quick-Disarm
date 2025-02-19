@@ -22,12 +22,14 @@
     <string name="summary_message">הרישום עבר בהצלחה\n\nבלוטות׳ הרכב: %1$s\nמספר רכב: %2$s\nמספר טלפון: %3$s</string>
 
     <!-- Quick Disarm Activity -->
+    <string name="bluetooth_not_enabled">בלוטות׳ כבוי</string>
+    <string name="bluetooth_must_be_enabled">בלוטות׳ חייב להיות דלוק</string>
     <string name="bluetooth_not_supported_on_device">המכשיר אינו תומך בבלוטות׳</string>
     <string name="add_car">הוסף רכב</string>
     <string name="please_add_a_car_first">אנא הוסף רכב תחילה</string>
     <string name="added_cars">מכוניות שמורות: %1$s</string>
     <string name="no_cars_added_yet">אין מכוניות שמורות</string>
-    <string name="failed_to_acquire_missing_permissions">לא ניתנו הרשאות הכרחיות</string>
+    <string name="failed_to_acquire_missing_permissions">אנא הוסף את ההרשאות החסרות</string>
     <string name="connect">התחבר</string>
     <string name="connecting_to_device">מתחבר…</string>
     <string name="discovering_device">סורק את המכשיר…</string>

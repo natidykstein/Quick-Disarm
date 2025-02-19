@@ -47,4 +47,10 @@
     <string name="manual_disarm_title">ניטרול ידני</string>
     <string name="manual_disarm_message">כאשר המכשיר מתחבר לבלוטות של הרכב, לחץ על ההודעה המוצגת ע״מ לנטרל את האיתוראן</string>
     <string name="manual_disarm_ok_button">הבנתי</string>
+
+    <!-- Notifications -->
+    <string name="tap_to_disarm_notification_title">ברוך הבא לאקספנג שלך</string>
+    <string name="tap_to_disarm_notification_message">לחץ לניטרול האיתוראן</string>
+    <string name="disarming_in_progress_notification_title">ניטרול איתוראן</string>
+    <string name="disarming_in_progress_notification_message">ניטרול מתבצע…</string>
 </resources>

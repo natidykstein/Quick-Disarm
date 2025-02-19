@@ -41,7 +41,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                             super.onAuthenticationSucceeded(result);
                             ILog.d("Authentication successful");
                             // Authentication successful - start DisarmJobIntentService
-                            DisarmJobIntentService.enqueueWork(AuthenticationActivity.this, mConnectedCarBluetoothMac);
+                            DisarmForegroundService.startService(AuthenticationActivity.this, mConnectedCarBluetoothMac);
                             finish();
                         }
 

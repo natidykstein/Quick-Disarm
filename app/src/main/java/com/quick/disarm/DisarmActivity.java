@@ -120,7 +120,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void handlePermissions() {
-        if (hasRequiredPermissions()) {
+        if (hasRequiredPermissionsAndBluetoothEnabled()) {
             setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
         } else {
             askForRequiredPermissions();
@@ -176,26 +176,25 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
      * If bluetooth not enabled an 'enable bluetooth' dialog will displayed to the user
      * @return
      */
-    private boolean hasRequiredPermissions() {
-        if (bluetoothAdapter.isEnabled()) {
-            return hasAllRequiredPermissions();
-        } else {
-            // It's kind of strange but we need BLUETOOTH_CONNECT permissions to display the
-            // 'enable bluetooth' dialog so we're asking for all the required permissions while we're at it.
-            if (hasAllRequiredPermissions()) {
-                // Only if we already have the required permissions we can display the 'enable bluetooth' dialog
-                ILog.w("Bluetooth not enabled - attempting to start activity to request bluetooth enable...");
+    private boolean hasRequiredPermissionsAndBluetoothEnabled() {
+        // We check permissions first and bluetooth enabled later since we can't display
+        // the 'enable bluetooth' popup without BLUETOOTH_CONNECT permission
+        if(hasRequiredPermissions()) {
+            if (bluetoothAdapter.isEnabled()) {
+                return true;
+            } else {
+                ILog.w("Bluetooth not enabled - showing enable bluetooth popup to user");
                 Toast.makeText(DisarmActivity.this, R.string.bluetooth_not_enabled, Toast.LENGTH_SHORT).show();
                 final Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                 return true;
             }
-
+        } else {
             return false;
         }
     }
 
-    private boolean hasAllRequiredPermissions() {
+    private boolean hasRequiredPermissions() {
         for (String permission : REQUIRED_PERMISSIONS) {
             if (!hasPermission(permission)) {
                 return false;
@@ -238,7 +237,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                     grantResults[2] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                 ILog.d("Got required permissions");
-                if (hasRequiredPermissions()) {
+                if (hasRequiredPermissionsAndBluetoothEnabled()) {
                     setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
                 }
             } else {

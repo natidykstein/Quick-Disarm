@@ -11,6 +11,6 @@ import android.content.Intent;
 public class JobIntentReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        DisarmJobIntentService.enqueueWork(context, intent.getStringExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH));
+        DisarmForegroundService.startService(context, intent.getStringExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH));
     }
 }

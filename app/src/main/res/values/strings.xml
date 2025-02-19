@@ -48,4 +48,11 @@
     <string name="manual_disarm_message">When your device connects to the car\'s bluetooth, simply tap the displayed notification to quickly disarm Ituran</string>
     <string name="manual_disarm_ok_button">Got it</string>
 
+    <!-- Notifications -->
+    <string name="tap_to_disarm_notification_title">Welcome to your Xpeng</string>
+    <string name="tap_to_disarm_notification_message">Tap to disarm Ituran</string>
+    <string name="disarming_in_progress_notification_title">Disarming Ituran</string>
+    <string name="disarming_in_progress_notification_message">Disarming in progress…</string>
+
+
 </resources>

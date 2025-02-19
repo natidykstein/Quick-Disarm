@@ -1,6 +1,8 @@
 package com.quick.disarm;
 
 import android.annotation.SuppressLint;
+import android.app.IntentService;
+import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -10,7 +12,8 @@ import android.os.Build;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.utils.PreferenceCache;
@@ -20,31 +23,46 @@ import java.util.Objects;
 /**
  * @noinspection deprecation
  */
-public class DisarmJobIntentService extends JobIntentService implements DisarmStateListener {
-    // PENDING: Temporarily set to '0' for increased visibility -
-    private static final long TOLERABLE_DURATION_LIMIT = 0;//TimeUnit.SECONDS.toMillis(1);
+public class DisarmForegroundService extends IntentService implements DisarmStateListener {
+    private static final long TOLERABLE_DURATION_LIMIT = 0; // TimeUnit.SECONDS.toMillis(1);
 
     public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
-
-    private static final int JOB_ID = 1;
+    private static final int NOTIFICATION_ID = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
     private PowerManager.WakeLock mWakeLock;
     private long mDisarmStartTime;
 
-    // PENDING: For removal
-    private static void enqueueWork(Context context, String connectedCarBluetoothMac) {
-        ILog.d("Starting disarm service...");
-        final Intent serviceIntent = new Intent(context, DisarmJobIntentService.class);
-        serviceIntent.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
-        serviceIntent.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
-        enqueueWork(context, DisarmJobIntentService.class, JOB_ID, serviceIntent);
+    public DisarmForegroundService() {
+        super("DisarmForegroundService");
+    }
+
+    public static void startService(Context context, String connectedCarBluetoothMac) {
+        ILog.d("Starting disarm foreground service...");
+        Intent serviceIntent = new Intent(context, DisarmForegroundService.class);
+        serviceIntent.putExtra(DisarmForegroundService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
+        serviceIntent.putExtra(DisarmForegroundService.EXTRA_START_TIME, System.currentTimeMillis());
+        ContextCompat.startForegroundService(context, serviceIntent);
     }
 
     @Override
-    protected void onHandleWork(@NonNull Intent intent) {
-        ILog.d("Starting onHandleWork...");
+    protected void onHandleIntent(@NonNull Intent intent) {
+        ILog.d("Starting onHandleIntent...");
+
+        // Create the notification channel if needed
+        WakeupOnBluetoothReceiver.createNotificationChannel(this);
+
+        // Create the notification
+        final Notification notification = new NotificationCompat.Builder(this, WakeupOnBluetoothReceiver.CHANNEL_ID)
+                .setContentTitle("Disarming Ituran")
+                .setContentText("Disarming in progress...")
+                .setSmallIcon(R.drawable.ic_small_notification)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+
+        // Start the foreground service with the notification
+        startForeground(NOTIFICATION_ID, notification);
 
         // Acquire a wake lock to keep the CPU running
         final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -60,7 +78,7 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
+            String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
             final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
             if (connectedCar != null) {
                 ILog.d("Connecting to " + connectedCar + "'s Ituran...");
@@ -107,6 +125,8 @@ public class DisarmJobIntentService extends JobIntentService implements DisarmSt
             }
 
             mWakeLock.release();
+            stopForeground(true);
+            stopSelf();
         }
     }
 }

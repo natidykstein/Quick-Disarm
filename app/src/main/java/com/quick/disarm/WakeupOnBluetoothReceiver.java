@@ -18,7 +18,7 @@ import java.util.Set;
 
 @SuppressLint("MissingPermission")
 public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
-    private static final String CHANNEL_ID = "QuickDisarmChannel";
+    public static final String CHANNEL_ID = "QuickDisarmChannel";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -27,9 +27,6 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null) {
                 ILog.d("Connected to " + getLoggedString(device));
-
-                // TESTING
-                // showAuthenticationRequiredNotification(context, device.getAddress());
 
                 final Set<String> bluetoothSet =
                         PreferenceCache.get(context).getCarBluetoothSet();
@@ -43,7 +40,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                     if (autoDisarmEnabled) {
                         ILog.d("Auto disarm enabled - starting disarm service in the background");
                         // Offload disarming to intent service
-                        DisarmJobIntentService.enqueueWork(context, connectedCarBluetoothMac);
+                        DisarmForegroundService.startService(context, connectedCarBluetoothMac);
                     } else {
                         ILog.d("Auto disarm disabled - showing disarm notification");
                         // Show notification before starting to disarm
@@ -90,13 +87,13 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     }
 
     private PendingIntent getPendingIntent(Context context, String connectedCarBluetoothMac) {
-        final Intent startJobIntentReceiver = new Intent(context, JobIntentReceiver.class);
+        final Intent startJobIntentReceiver = new Intent(context, DisarmForegroundService.class);
         startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
         startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
-        return PendingIntent.getBroadcast(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
+        return PendingIntent.getForegroundService(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private void createNotificationChannel(Context context) {
+    public static void createNotificationChannel(Context context) {
         final String name = "QuickDisarm Channel";
         final String description = "Channel for QuickDisarm notifications";
         final int importance = NotificationManager.IMPORTANCE_HIGH;

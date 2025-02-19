@@ -76,8 +76,8 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_small_notification)
-                .setContentTitle("Welcome to your Xpeng")
-                .setContentText("Tap to disarm Ituran")
+                .setContentTitle(context.getString(R.string.tap_to_disarm_notification_title))
+                .setContentText(context.getString(R.string.tap_to_disarm_notification_message))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);

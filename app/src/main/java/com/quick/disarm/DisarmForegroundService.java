@@ -55,8 +55,8 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
 
         // Create the notification
         final Notification notification = new NotificationCompat.Builder(this, WakeupOnBluetoothReceiver.CHANNEL_ID)
-                .setContentTitle("Disarming Ituran")
-                .setContentText("Disarming in progress...")
+                .setContentTitle(getString(R.string.disarming_in_progress_notification_title))
+                .setContentText(getString(R.string.disarming_in_progress_notification_message))
                 .setSmallIcon(R.drawable.ic_small_notification)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();

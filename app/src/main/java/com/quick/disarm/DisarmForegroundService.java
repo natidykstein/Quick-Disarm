@@ -56,7 +56,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         // Create the notification
         final Notification notification = new NotificationCompat.Builder(this, WakeupOnBluetoothReceiver.CHANNEL_ID)
                 .setContentTitle(getString(R.string.disarming_in_progress_notification_title))
-                .setContentText(getString(R.string.disarming_in_progress_notification_message))
+                //.setContentText(getString(R.string.disarming_in_progress_notification_message))
                 .setSmallIcon(R.drawable.ic_small_notification)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
@@ -78,7 +78,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
+            final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
             final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
             if (connectedCar != null) {
                 ILog.d("Connecting to " + connectedCar + "'s Ituran...");

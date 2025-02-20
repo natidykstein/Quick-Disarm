@@ -51,8 +51,6 @@
     <!-- Notifications -->
     <string name="tap_to_disarm_notification_title">Welcome to your Xpeng</string>
     <string name="tap_to_disarm_notification_message">Tap to disarm Ituran</string>
-    <string name="disarming_in_progress_notification_title">Disarming Ituran</string>
-    <string name="disarming_in_progress_notification_message">Disarming in progress…</string>
-
+    <string name="disarming_in_progress_notification_title">Disarming in progress…</string>
 
 </resources>

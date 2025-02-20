@@ -52,7 +52,7 @@ public class StarlinkCommandDispatcher {
 
         initCharacteristics();
 
-        ILog.d("Initialized with device UUID = " + mDeviceUuid + " and car =" + mConnectedCar);
+        ILog.d("Initialized StarlinkCommandDispatcher for " + mConnectedCar);
     }
 
     private void initCharacteristics() {
@@ -83,7 +83,9 @@ public class StarlinkCommandDispatcher {
 
     public void setRandom(byte[] random) {
         if (!Arrays.equals(mRandom, random)) {
-            ILog.d("Updated random from " + bytesToHex(mRandom) + " to " + bytesToHex(random));
+            if (BuildConfig.DEBUG) {
+                ILog.d("Updated random from " + bytesToHex(mRandom) + " to " + bytesToHex(random));
+            }
             mRandom = random;
         }
     }
@@ -107,15 +109,20 @@ public class StarlinkCommandDispatcher {
         }
         commandBufferBytes[10] = (byte) (codeAsUnsignedInt & 0xFF);
         commandBufferBytes[11] = (byte) ((codeAsUnsignedInt & 0xFF00) >> 8);
-        ILog.d("Command buffer: " + bytesToHex(commandBufferBytes));
+        if (BuildConfig.DEBUG) {
+            ILog.d("Command buffer: " + bytesToHex(commandBufferBytes));
+        }
 
 
         final byte[] randomizedSerialBytes = keyGen(mConnectedCar.getStarlinkSerial(), mRandom);
-        ILog.d("Key: " + bytesToHex(randomizedSerialBytes));
-
+        if (BuildConfig.DEBUG) {
+            ILog.d("Key: " + bytesToHex(randomizedSerialBytes));
+        }
 
         final byte[] encryptedRandomizedSerialBytes = encryptCommand(commandBufferBytes, randomizedSerialBytes);
-        ILog.d("Encrypted command: " + bytesToHex(encryptedRandomizedSerialBytes));
+        if (BuildConfig.DEBUG) {
+            ILog.d("Encrypted command: " + bytesToHex(encryptedRandomizedSerialBytes));
+        }
 
         if (Build.VERSION.SDK_INT >= 33) {
             mGatt.writeCharacteristic(mSendCharacteristic, encryptedRandomizedSerialBytes, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);

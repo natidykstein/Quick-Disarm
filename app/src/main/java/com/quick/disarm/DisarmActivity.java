@@ -73,9 +73,8 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_disarm);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_disarm);
+        final Toolbar toolbar = findViewById(R.id.toolbar_disarm);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Initialize Bluetooth adapter
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);

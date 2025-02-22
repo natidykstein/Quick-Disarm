@@ -50,7 +50,6 @@
         <activity android:name=".register.DetectCarBluetoothActivity" />
         <activity android:name=".register.RegisterActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".AuthenticationActivity" />
 
         <!-- Register the receiver -->
         <receiver
@@ -63,16 +62,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".JobIntentReceiver" />
-
         <service
             android:name=".DisarmForegroundService"
             android:foregroundServiceType="connectedDevice"
             android:permission="android.permission.FOREGROUND_SERVICE" />
-
-        <service
-            android:name=".DisarmJobIntentService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

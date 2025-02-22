@@ -30,8 +30,23 @@ public final class QuickDisarmApplication extends Application {
         context = getApplicationContext();
 
         IturanServerAPI.init(context);
+        performDataResetIfNeeded(context);
 
         initAnalytics(context);
+    }
+
+    // PENDING: Remove method once all have been migrated to version > 1.2.3
+    private void performDataResetIfNeeded(Context context) {
+        final Set<String> carBluetoothSet = PreferenceCache.get(context).getCarBluetoothSet();
+        final String carBluetooth = !carBluetoothSet.isEmpty() ? carBluetoothSet.iterator().next() : null;
+        final Car anyCar = carBluetooth != null ? PreferenceCache.get(context).getCar(carBluetooth) : null;
+        if (anyCar != null) {
+            if (anyCar.getBluetoothTrigger() == null) {
+                ILog.d("Detected old cars data - performing cleanup...");
+                // Reset old cars data
+                PreferenceCache.get(this).removeOldCarsData();
+            }
+        }
     }
 
     public static void initAnalytics(Context context) {
@@ -69,8 +84,7 @@ public final class QuickDisarmApplication extends Application {
     }
 
     private static Car getAnyCar(Context context) {
-        final Set<String> carBluetoothSet = PreferenceCache.get(context).getCarBluetoothSet();
-        final String carBluetooth = !carBluetoothSet.isEmpty() ? carBluetoothSet.iterator().next() : null;
-        return carBluetooth != null ? PreferenceCache.get(context).getCar(carBluetooth) : null;
+        final Set<Car> carSet = PreferenceCache.get(context).getCarSet();
+        return !carSet.isEmpty() ? carSet.iterator().next() : null;
     }
 }

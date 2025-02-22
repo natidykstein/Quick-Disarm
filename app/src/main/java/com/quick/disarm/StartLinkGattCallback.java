@@ -78,7 +78,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
                 ILog.d( "Write successful for send command");
                 setDisarmStatus(DisarmStateListener.DisarmStatus.DISARMED);
             } else {
-                ILog.logException( "Write failed on characteristic: " + characteristic.getUuid() + " with status " + status);
+                ILog.logException(new RuntimeException("Write failed on characteristic: " + characteristic.getUuid() + " with status " + status));
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
             }
         } else {

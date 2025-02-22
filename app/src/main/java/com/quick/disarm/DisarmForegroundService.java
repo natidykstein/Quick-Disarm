@@ -26,7 +26,7 @@ import java.util.Objects;
 public class DisarmForegroundService extends IntentService implements DisarmStateListener {
     private static final long TOLERABLE_DURATION_LIMIT = 0; // TimeUnit.SECONDS.toMillis(1);
 
-    public static final String EXTRA_CAR_BLUETOOTH = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
+    public static final String EXTRA_CONNECTED_CAR = "com.quick.disarm.extra.CONNEXTED_CAR";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
     private static final int NOTIFICATION_ID = 1;
 
@@ -38,10 +38,10 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         super("DisarmForegroundService");
     }
 
-    public static void startService(Context context, String connectedCarBluetoothMac) {
+    public static void startService(Context context, Car connectedCar) {
         ILog.d("Starting disarm foreground service...");
         Intent serviceIntent = new Intent(context, DisarmForegroundService.class);
-        serviceIntent.putExtra(DisarmForegroundService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
+        serviceIntent.putExtra(DisarmForegroundService.EXTRA_CONNECTED_CAR, connectedCar);
         serviceIntent.putExtra(DisarmForegroundService.EXTRA_START_TIME, System.currentTimeMillis());
         ContextCompat.startForegroundService(context, serviceIntent);
     }
@@ -78,17 +78,17 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            final String carBluetoothMac = intent.getStringExtra(EXTRA_CAR_BLUETOOTH);
+            final String carBluetoothMac = intent.getStringExtra(EXTRA_CONNECTED_CAR);
             final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
             if (connectedCar != null) {
                 ILog.d("Connecting to " + connectedCar + "'s Ituran...");
                 connectToDevice(connectedCar);
             } else {
-                ILog.logException("No car found for configured bluetooth device with address [" + carBluetoothMac + "]");
+                ILog.logException(new RuntimeException("No car found for configured bluetooth device with address [" + carBluetoothMac + "]"));
                 mWakeLock.release();
             }
         } else {
-            ILog.logException("Bluetooth is not supported on this device");
+            ILog.logException(new RuntimeException("Bluetooth is not supported on this device"));
             mWakeLock.release();
         }
     }
@@ -120,7 +120,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
 
             // Log as an exception for increased visibility
             if (duration > TOLERABLE_DURATION_LIMIT) {
-                ILog.logException("Disarm device took longer than expected: " + duration + "ms");
+                ILog.logException(new RuntimeException("Disarm device took longer than expected: " + duration + "ms"));
             }
 
             mWakeLock.release();

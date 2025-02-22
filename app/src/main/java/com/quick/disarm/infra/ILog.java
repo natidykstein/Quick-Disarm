@@ -56,10 +56,6 @@ public class ILog {
         logException(t, true);
     }
 
-    public static void logException(String message) {
-        logException(new Throwable(message));
-    }
-
     private static boolean shouldReport(Throwable t) {
         // Don't report network-related or 401/403 errors
         return !VolleyUtils.isNetworkRelatedError(t) && !VolleyUtils.isUnauthorized(t) && !VolleyUtils.isForbidden(t);

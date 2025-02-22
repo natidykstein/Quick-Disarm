@@ -28,29 +28,28 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
             if (device != null) {
                 ILog.d("Connected to " + getLoggedString(device));
 
-                final Set<String> bluetoothSet =
-                        PreferenceCache.get(context).getCarBluetoothSet();
-                // Iterate through configured car bluetooth list
-                final String connectedCarBluetoothMac =
-                        getConnectedBluetoothMac(device.getAddress(), bluetoothSet);
-                if (connectedCarBluetoothMac != null) {
-                    ILog.d("Connected to car's configured bluetooth");
+                final Set<Car> configuredCars = PreferenceCache.get(context).getCarSet();
+                // Get car by triggered bluetooth
+                final Car connectedCar =
+                        getConnectedCarByBluetoothTrigger(device.getAddress(), configuredCars);
+                if (connectedCar != null) {
+                    ILog.d("Found car by triggered bluetooth: " + connectedCar);
 
                     boolean autoDisarmEnabled = PreferenceCache.get(context).isAutoDisarmEnabled();
                     if (autoDisarmEnabled) {
                         ILog.d("Auto disarm enabled - starting disarm service in the background");
                         // Offload disarming to intent service
-                        DisarmForegroundService.startService(context, connectedCarBluetoothMac);
+                        DisarmForegroundService.startService(context, connectedCar);
                     } else {
                         ILog.d("Auto disarm disabled - showing disarm notification");
                         // Show notification before starting to disarm
-                        showAuthenticationRequiredNotification(context, connectedCarBluetoothMac);
+                        showAuthenticationRequiredNotification(context, connectedCar);
                     }
                 } else {
-                    ILog.d("Device is not a known car bluetooth: " + getLoggedString(device));
+                    ILog.d("No car found for triggered bluetooth: " + getLoggedString(device));
                 }
             } else {
-                ILog.e("Got null device from intent extra");
+                ILog.e("Got 'null' device from intent extra");
             }
         } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -68,11 +67,11 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
         return (name != null ? name : "NO_NAME") + " [" + address + "]";
     }
 
-    private void showAuthenticationRequiredNotification(Context context, String connectedCarBluetoothMac) {
+    private void showAuthenticationRequiredNotification(Context context, Car connectedCar) {
         ILog.d("Showing authentication notification...");
         createNotificationChannel(context);
 
-        final PendingIntent pendingIntent = getPendingIntent(context, connectedCarBluetoothMac);
+        final PendingIntent pendingIntent = getPendingIntent(context, connectedCar);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_small_notification)
@@ -86,10 +85,10 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
         notificationManager.notify(1, builder.build());
     }
 
-    private PendingIntent getPendingIntent(Context context, String connectedCarBluetoothMac) {
+    private PendingIntent getPendingIntent(Context context, Car connectedCar) {
         final Intent startJobIntentReceiver = new Intent(context, DisarmForegroundService.class);
-        startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_CAR_BLUETOOTH, connectedCarBluetoothMac);
-        startJobIntentReceiver.putExtra(DisarmJobIntentService.EXTRA_START_TIME, System.currentTimeMillis());
+        startJobIntentReceiver.putExtra(DisarmForegroundService.EXTRA_CONNECTED_CAR, connectedCar);
+        startJobIntentReceiver.putExtra(DisarmForegroundService.EXTRA_START_TIME, System.currentTimeMillis());
         return PendingIntent.getForegroundService(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
     }
 
@@ -109,10 +108,10 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     /**
      * Check if the connected device address is one of the configured cars bluetooth mac
      */
-    private String getConnectedBluetoothMac(String connectedDeviceAddress, Set<String> configuredCarAddressList) {
+    private Car getConnectedCarByBluetoothTrigger(String connectedDeviceAddress, Set<Car> configuredCars) {
         ILog.d("Checking if connected to car's bluetooth...");
-        return configuredCarAddressList.stream()
-                .filter(bluetoothMac -> bluetoothMac.equals(connectedDeviceAddress))
+        return configuredCars.stream()
+                .filter(car -> connectedDeviceAddress.equals(car.getBluetoothTrigger()))
                 .findFirst()
                 .orElse(null);
     }

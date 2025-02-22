@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.reflect.TypeToken;
 import com.quick.disarm.Car;
+import com.quick.disarm.infra.ILog;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,9 @@ import java.util.Set;
 public class PreferenceCache {
     private static final String SHARED_PREFERENCES_FILE_NAME = "disarm_pref_cache";
 
+    @Deprecated
     private static final String SPF_CAR_BLUETOOTH_LIST = "spf_car_bluetooth_list";
+    private static final String SPF_CAR_SET = "spf_car_set";
     private static final String SPF_AUTO_DISARM_ENABLED = "spf_auto_disarm_enabled";
 
     private static volatile PreferenceCache sInstance;
@@ -40,12 +43,17 @@ public class PreferenceCache {
         mSharedPreferencesProxy = new SharedPreferencesProxy(context, SHARED_PREFERENCES_FILE_NAME);
     }
 
-    @Nullable
-    public Car getCar(String bluetoothTrigger) {
-        return mSharedPreferencesProxy.getObject(bluetoothTrigger, Car.class, null);
+    public void removeOldCarsData() {
+        final Set<String> bluetoothList = getCarBluetoothSet();
+        for (String bluetoothTrigger : bluetoothList) {
+            mSharedPreferencesProxy.remove(bluetoothTrigger);
+        }
+        mSharedPreferencesProxy.remove(SPF_CAR_BLUETOOTH_LIST);
+
+        ILog.d("Removed " + bluetoothList.size() + " old car(s) data");
     }
 
-    // PENDING: Make sure the pair(bluetoothTrigger, car) is unique per car's license plate
+    @Deprecated
     public void addCar(String bluetoothTrigger, Car car) {
         final Set<String> bluetoothList = getCarBluetoothSet();
         bluetoothList.add(bluetoothTrigger);
@@ -53,13 +61,32 @@ public class PreferenceCache {
         mSharedPreferencesProxy.putObject(bluetoothTrigger, car);
     }
 
+    @Nullable
+    @Deprecated
+    public Car getCar(String bluetoothTrigger) {
+        return mSharedPreferencesProxy.getObject(bluetoothTrigger, Car.class, null);
+    }
+
+    @Deprecated
     private void setCarBluetoothSet(Set<String> carBluetoothList) {
         mSharedPreferencesProxy.putObject(SPF_CAR_BLUETOOTH_LIST, carBluetoothList);
     }
 
+    @Deprecated
     public Set<String> getCarBluetoothSet() {
         return mSharedPreferencesProxy.getObject(SPF_CAR_BLUETOOTH_LIST, new TypeToken<Set<String>>() {
         }, new HashSet<>());
+    }
+
+    public Set<Car> getCarSet() {
+        return mSharedPreferencesProxy.getObject(SPF_CAR_SET, new TypeToken<Set<Car>>() {
+        }, new HashSet<>());
+    }
+
+    public void addCar(Car car) {
+        final Set<Car> carSet = getCarSet();
+        carSet.add(car);
+        mSharedPreferencesProxy.putObject(SPF_CAR_SET, carSet);
     }
 
     public void setAutoDisarmEnabled(boolean autoDisarmEnabled) {

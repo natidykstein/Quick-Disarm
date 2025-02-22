@@ -42,9 +42,11 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
                 if (device != null) {
                     final String deviceName = device.getName();
                     final String deviceAddress = device.getAddress();
-                    if(shouldExcludeDevice(deviceName)) {
+                    if (shouldExcludeDevice(deviceName)) {
                         bluetoothDevices.add(new BluetoothDeviceItem(deviceName, deviceAddress));
                         adapter.notifyItemInserted(bluetoothDevices.size() - 1);
+                    } else {
+                        ILog.d("Skipping excluded device: " + deviceName);
                     }
                 } else {
                     ILog.e("Failed to get device information - got null instead");
@@ -71,8 +73,8 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             Analytics.reportSelectButtonEvent("select_bluetooth", device.getName());
 
             final Intent startRegisterActivityIntent = new Intent(DetectCarBluetoothActivity.this, RegisterActivity.class);
-            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_NAME, device.getName());
-            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_CAR_BLUETOOTH_MAC, device.getAddress());
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_BLUETOOTH_TRIGGER_NAME, device.getName());
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_BLUETOOTH_TRIGGER, device.getAddress());
             startActivity(startRegisterActivityIntent);
             finish();
         });

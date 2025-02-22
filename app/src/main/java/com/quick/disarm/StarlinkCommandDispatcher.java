@@ -77,7 +77,7 @@ public class StarlinkCommandDispatcher {
                 ILog.e("Failed to read device random - readCharacteristic returned false");
             }
         } else {
-            ILog.logException("Failed to read random - characteristics not initialized");
+            ILog.logException(new RuntimeException("Failed to read random - characteristics not initialized"));
         }
     }
 
@@ -112,7 +112,6 @@ public class StarlinkCommandDispatcher {
         if (BuildConfig.DEBUG) {
             ILog.d("Command buffer: " + bytesToHex(commandBufferBytes));
         }
-
 
         final byte[] randomizedSerialBytes = keyGen(mConnectedCar.getStarlinkSerial(), mRandom);
         if (BuildConfig.DEBUG) {

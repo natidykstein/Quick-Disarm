@@ -1,14 +1,19 @@
 package com.quick.disarm;
 
-public class Car {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class Car implements Serializable {
     private final String mPhoneNumber;
+    private final String mBluetoothTrigger;
     private final String mLicensePlate;
     private final String mStarlinkMac;
     private final int mStarlinkSerial;
     private final String mIturanCode;
 
-    public Car(String phoneNumber, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
+    public Car(String phoneNumber, String bluetoothTrigger, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
         mPhoneNumber = phoneNumber;
+        mBluetoothTrigger = bluetoothTrigger;
         mLicensePlate = licensePlate;
         mStarlinkMac = convertToValidMac(starlinkMac);
         mStarlinkSerial = starLinkSerial;
@@ -30,6 +35,10 @@ public class Car {
         return mPhoneNumber;
     }
 
+    public String getBluetoothTrigger() {
+        return mBluetoothTrigger;
+    }
+
     public String getLicensePlate() {
         return mLicensePlate;
     }
@@ -47,6 +56,19 @@ public class Car {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Car car = (Car) o;
+        return Objects.equals(mLicensePlate, car.mLicensePlate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mLicensePlate);
+    }
+
+    @Override
     public String toString() {
         return "Car(" + mLicensePlate + ")";
     }
@@ -54,6 +76,7 @@ public class Car {
     public String toStringExtended() {
         return "Car{" +
                 "mPhoneNumber='" + mPhoneNumber + '\'' +
+                "mBluetoothTrigger='" + mBluetoothTrigger + '\'' +
                 ", mLicensePlate='" + mLicensePlate + '\'' +
                 ", mStarlinkMac='" + mStarlinkMac + '\'' +
                 ", mStarlinkSerial=" + mStarlinkSerial +

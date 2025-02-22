@@ -38,8 +38,8 @@ import com.quick.disarm.model.SerializationAnswer;
 import com.quick.disarm.utils.PreferenceCache;
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String EXTRA_CAR_BLUETOOTH_NAME = "com.quick.disarm.extra.CAR_BLUETOOTH_NAME";
-    public static final String EXTRA_CAR_BLUETOOTH_MAC = "com.quick.disarm.extra.CAR_BLUETOOTH_MAC";
+    public static final String EXTRA_BLUETOOTH_TRIGGER_NAME = "com.quick.disarm.extra.BLUETOOTH_TRIGGER_NAME";
+    public static final String EXTRA_BLUETOOTH_TRIGGER = "com.quick.disarm.extra.BLUETOOTH_TRIGGER_MAC";
 
     private static final int SMS_PERMISSION_CODE = 2000;
 
@@ -121,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
             protected void onResponse(AppResponse<ActivationAnswer> response, boolean secondCallback) {
                 progressBar.setVisibility(View.GONE);
                 final ActivationAnswer answer = response.getData();
-                ILog.d("Activation answer = " + answer);
+                ILog.d("Got from server: " + answer);
                 if (ModelUtils.isValid(answer.getReturnError())) {
                     showPage2();
                 } else {
@@ -144,7 +144,7 @@ public class RegisterActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
 
         if (Utils.isConnectedToNetwork(RegisterActivity.this)) {
-            ILog.logException(errorMessage);
+            ILog.logException(new RuntimeException(errorMessage));
             Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(RegisterActivity.this, R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
@@ -176,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
             protected void onResponse(AppResponse<SerializationAnswer> response, boolean secondCallback) {
                 progressBar.setVisibility(View.GONE);
                 final SerializationAnswer answer = response.getData();
-                ILog.d("Serialization answer = " + answer);
+                ILog.d("Got from server: " + answer);
                 if (ModelUtils.isValid(answer.getReturnError())) {
                     saveDriverData(answer.getStarlinkMacAddress(), answer.getStarlinkSerial());
                     showPage3();
@@ -194,13 +194,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
-        final Car car = new Car(phoneNumber, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
-        final String carBluetoothMac = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_MAC);
-        PreferenceCache.get(this).addCar(carBluetoothMac, car);
+        final String bluetoothTrigger = getIntent().getStringExtra(EXTRA_BLUETOOTH_TRIGGER);
+        final Car car = new Car(phoneNumber, bluetoothTrigger, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
+        PreferenceCache.get(this).addCar(car);
         ILog.d("Added " + car);
 
         // PENDING: For now logging as exception for increased visibility
-        ILog.logException("Successfully registered " + car.toStringExtended());
+        ILog.logException(new RuntimeException("Successfully registered " + car.toStringExtended()));
     }
 
     private boolean validatePage2() {
@@ -214,7 +214,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void showPage3() {
         page2.setVisibility(View.GONE);
         page3.setVisibility(View.VISIBLE);
-        final String carBluetoothName = getIntent().getStringExtra(EXTRA_CAR_BLUETOOTH_NAME);
+        final String carBluetoothName = getIntent().getStringExtra(EXTRA_BLUETOOTH_TRIGGER_NAME);
         textViewSummary.setText(getString(R.string.summary_message, carBluetoothName, licensePlate, phoneNumber));
 
         // Update analytics after a successful car registration

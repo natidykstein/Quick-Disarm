@@ -42,7 +42,7 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
                 if (device != null) {
                     final String deviceName = device.getName();
                     final String deviceAddress = device.getAddress();
-                    if (shouldExcludeDevice(deviceName)) {
+                    if (!shouldExcludeDevice(deviceName)) {
                         bluetoothDevices.add(new BluetoothDeviceItem(deviceName, deviceAddress));
                         adapter.notifyItemInserted(bluetoothDevices.size() - 1);
                     } else {
@@ -54,10 +54,11 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             }
         }
 
-        // To prevent users's confusion -
-        // we're excluding Xpeng's app bluetooth component and Ituran's device.
+        // To prevent users mistakes -
+        // we're excluding no-name devices, Xpeng's app bluetooth component and Ituran's device.
         private boolean shouldExcludeDevice(String deviceName) {
-            return deviceName.startsWith(XPENG_APP_BLUETOOTH_PREFIX) ||
+            return deviceName == null ||
+                    deviceName.startsWith(XPENG_APP_BLUETOOTH_PREFIX) ||
                     deviceName.startsWith(ITURAN_BLUETOOTH_PREFIX);
         }
     };

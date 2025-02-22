@@ -140,11 +140,21 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         super.onStart();
 
         // Refresh when getting back to the activity
-        final Car selectedCar = getSelectedCar();
-        final String dataSummaryText = selectedCar != null ?
-                getString(R.string.added_cars, selectedCar.getLicensePlate()) :
-                getString(R.string.no_cars_added_yet);
-        this.<TextView>findViewById(R.id.editTextDataSummary).setText(dataSummaryText);
+        final Set<Car> carSet = PreferenceCache.get(this).getCarSet();
+        final String carsSummaryText;
+        if (carSet != null) {
+            final StringBuilder carPlates = new StringBuilder();
+            // Add all cars license plates
+            for (Car car : carSet) {
+                carPlates.append(car.getFormattedLicensePlate()).append(", ");
+            }
+            // Remove trailing comma
+            carsSummaryText = getString(R.string.added_cars, carPlates.substring(0, carPlates.length() - 2));
+        } else {
+            carsSummaryText = getString(R.string.no_cars_added_yet);
+        }
+
+        this.<TextView>findViewById(R.id.editTextDataSummary).setText(carsSummaryText);
     }
 
     @Override
@@ -169,9 +179,8 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private Car getSelectedCar() {
-        final Set<String> carBluetoothSet = PreferenceCache.get(this).getCarBluetoothSet();
-        final String carBluetooth = !carBluetoothSet.isEmpty() ? carBluetoothSet.iterator().next() : null;
-        return carBluetooth != null ? PreferenceCache.get(this).getCar(carBluetooth) : null;
+        final Set<Car> carSet = PreferenceCache.get(this).getCarSet();
+        return !carSet.isEmpty() ? carSet.iterator().next() : null;
     }
 
     private void askForRequiredPermissions() {
@@ -182,8 +191,6 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     /**
      * Method verifies that bluetooth is enabled and app has all required permissions.
      * If bluetooth not enabled an 'enable bluetooth' dialog will displayed to the user
-     *
-     * @return
      */
     private boolean hasRequiredPermissionsAndBluetoothEnabled() {
         // We check permissions first and bluetooth enabled later since we can't display

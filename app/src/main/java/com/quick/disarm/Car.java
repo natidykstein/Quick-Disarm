@@ -43,6 +43,13 @@ public class Car implements Serializable {
         return mLicensePlate;
     }
 
+    public String getFormattedLicensePlate() {
+        final StringBuilder prettyPlate = new StringBuilder(mLicensePlate);
+        prettyPlate.insert(3, "-");
+        prettyPlate.insert(6, "-");
+        return prettyPlate.toString();
+    }
+
     public String getStarlinkMac() {
         return mStarlinkMac;
     }

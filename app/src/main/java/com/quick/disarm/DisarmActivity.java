@@ -103,7 +103,16 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             if (hasCarConfigured()) {
                 if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
                     Analytics.reportSelectButtonEvent("disarm_button", "Connect");
-                    connectToDevice();
+                    // PENDING: Allow selecting the car to which we want to connect and disarm
+                    //  Currently we're taking the first car
+                    final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothSet().iterator().next();
+                    final Car car = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
+                    if (car != null) {
+                        ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
+                        connectToDevice(car);
+                    } else {
+                        ILog.e("Failed to find car for bluetooth: [" + defaultCarBluetoothMac + "]");
+                    }
                 } else {
                     Analytics.reportSelectButtonEvent("disarm_button", "Disarm");
                     StarlinkCommandDispatcher.get().dispatchDisarmCommand();
@@ -173,12 +182,13 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     /**
      * Method verifies that bluetooth is enabled and app has all required permissions.
      * If bluetooth not enabled an 'enable bluetooth' dialog will displayed to the user
+     *
      * @return
      */
     private boolean hasRequiredPermissionsAndBluetoothEnabled() {
         // We check permissions first and bluetooth enabled later since we can't display
         // the 'enable bluetooth' popup without BLUETOOTH_CONNECT permission
-        if(hasRequiredPermissions()) {
+        if (hasRequiredPermissions()) {
             if (bluetoothAdapter.isEnabled()) {
                 return true;
             } else {
@@ -206,15 +216,10 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         return ContextCompat.checkSelfPermission(DisarmActivity.this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void connectToDevice() {
+    private void connectToDevice(Car car) {
         setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.CONNECTING_TO_DEVICE);
-
-        // PENDING: In the activity we need to allow selecting the car to which we want to connect and disarm
-        //  Currently we're taking the first car
-        final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothSet().iterator().next();
-        final Car connectedCar = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
-        final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
-        device.connectGatt(this, false, new StartLinkGattCallback(this, connectedCar), BluetoothDevice.TRANSPORT_LE);
+        final BluetoothDevice device = getStarlinkDevice(car.getStarlinkMac());
+        device.connectGatt(this, false, new StartLinkGattCallback(this, car), BluetoothDevice.TRANSPORT_LE);
     }
 
     private BluetoothDevice getStarlinkDevice(String starlinkMac) {

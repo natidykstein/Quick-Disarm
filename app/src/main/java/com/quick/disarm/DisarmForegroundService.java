@@ -56,9 +56,9 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         // Create the notification
         final Notification notification = new NotificationCompat.Builder(this, WakeupOnBluetoothReceiver.CHANNEL_ID)
                 .setContentTitle(getString(R.string.disarming_in_progress_notification_title))
-                //.setContentText(getString(R.string.disarming_in_progress_notification_message))
                 .setSmallIcon(R.drawable.ic_small_notification)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                // PENDING: Might need to create a separate channel here to prevent sound
                 .build();
 
         // Start the foreground service with the notification
@@ -84,7 +84,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
                 ILog.d("Connecting to " + connectedCar + "'s Ituran...");
                 connectToDevice(connectedCar);
             } else {
-                ILog.logException("No car found for bluetooth device with address [" + carBluetoothMac + "]");
+                ILog.logException("No car found for configured bluetooth device with address [" + carBluetoothMac + "]");
                 mWakeLock.release();
             }
         } else {
@@ -115,8 +115,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         }
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;
-            final String logMessage = "Successfully disarmed device in " + duration + "ms";
-            ILog.d(logMessage);
+            ILog.d("Successfully disarmed device in " + duration + "ms");
             Analytics.reportEvent("disarm_success", "duration", String.valueOf(duration));
 
             // Log as an exception for increased visibility

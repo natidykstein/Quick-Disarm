@@ -16,12 +16,13 @@ public class Car {
     }
 
     private String convertToValidMac(String macString) {
-        StringBuilder stringBuilder = new StringBuilder();
+        final StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 6; i++) {
             int j = i * 2;
             stringBuilder.append(macString.substring(j, j + 2));
             if (i != 5) stringBuilder.append(':');
         }
+
         return stringBuilder.toString();
     }
 

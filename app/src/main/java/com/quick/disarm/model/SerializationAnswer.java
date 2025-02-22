@@ -17,7 +17,7 @@ public class SerializationAnswer {
     private String mReturnError;
 
     @SerializedName("MacAddress")
-    private String mStartlinkMacAddress;
+    private String mStarlinkMacAddress;
 
     @SerializedName("Serial")
     private int mStarlinkSerial;
@@ -31,7 +31,7 @@ public class SerializationAnswer {
     }
 
     public String getStarlinkMacAddress() {
-        return mStartlinkMacAddress;
+        return mStarlinkMacAddress;
     }
 
     public int getStarlinkSerial() {
@@ -43,16 +43,16 @@ public class SerializationAnswer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SerializationAnswer that = (SerializationAnswer) o;
-        return mStarlinkSerial == that.mStarlinkSerial && Objects.equals(mReturnError, that.mReturnError) && Objects.equals(mStartlinkMacAddress, that.mStartlinkMacAddress);
+        return mStarlinkSerial == that.mStarlinkSerial && Objects.equals(mReturnError, that.mReturnError) && Objects.equals(mStarlinkMacAddress, that.mStarlinkMacAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mReturnError, mStartlinkMacAddress, mStarlinkSerial);
+        return Objects.hash(mReturnError, mStarlinkMacAddress, mStarlinkSerial);
     }
 
     @Override
     public String toString() {
-        return "SerializationAnswer{" + "mReturnError='" + mReturnError + '\'' + ", mStartlinkMacAddress='" + mStartlinkMacAddress + '\'' + ", mStarlinkSerial=" + mStarlinkSerial + '}';
+        return "SerializationAnswer{" + "mReturnError='" + mReturnError + '\'' + ", mStarlinkMacAddress='" + mStarlinkMacAddress + '\'' + ", mStarlinkSerial=" + mStarlinkSerial + '}';
     }
 }

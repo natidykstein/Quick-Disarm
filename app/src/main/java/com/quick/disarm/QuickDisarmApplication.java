@@ -10,6 +10,7 @@ import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.network.volley.IturanServerAPI;
 import com.quick.disarm.utils.PreferenceCache;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +43,7 @@ public final class QuickDisarmApplication extends Application {
             if (phoneNumber != null) {
                 FirebaseAnalytics.getInstance(context).setUserId(phoneNumber);
                 FirebaseCrashlytics.getInstance().setUserId(phoneNumber);
-                ILog.d("Set analytics users id = " + phoneNumber);
+                ILog.d("Set analytics user id = " + phoneNumber);
             } else {
                 ILog.w("Got a car without a phone number - due to an older app version");
             }
@@ -57,7 +58,11 @@ public final class QuickDisarmApplication extends Application {
                     ILog.e("Failed to get car for configured bt address: " + bt);
                 }
             }
-            FirebaseAnalytics.getInstance(context).setUserProperty(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlates.toString());
+
+            // Add license plates as custom user property
+            final String licensePlateSetAsString = Arrays.toString(licensePlates.toArray());
+            FirebaseAnalytics.getInstance(context).setUserProperty(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlateSetAsString);
+            FirebaseCrashlytics.getInstance().setCustomKey(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlateSetAsString);
         } else {
             ILog.d("No configured cars found - not setting analytics users id");
         }

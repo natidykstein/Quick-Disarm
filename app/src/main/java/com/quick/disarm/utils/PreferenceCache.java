@@ -40,6 +40,19 @@ public class PreferenceCache {
         mSharedPreferencesProxy = new SharedPreferencesProxy(context, SHARED_PREFERENCES_FILE_NAME);
     }
 
+    @Nullable
+    public Car getCar(String bluetoothTrigger) {
+        return mSharedPreferencesProxy.getObject(bluetoothTrigger, Car.class, null);
+    }
+
+    // PENDING: Make sure the pair(bluetoothTrigger, car) is unique per car's license plate
+    public void addCar(String bluetoothTrigger, Car car) {
+        final Set<String> bluetoothList = getCarBluetoothSet();
+        bluetoothList.add(bluetoothTrigger);
+        setCarBluetoothSet(bluetoothList);
+        mSharedPreferencesProxy.putObject(bluetoothTrigger, car);
+    }
+
     private void setCarBluetoothSet(Set<String> carBluetoothList) {
         mSharedPreferencesProxy.putObject(SPF_CAR_BLUETOOTH_LIST, carBluetoothList);
     }
@@ -47,18 +60,6 @@ public class PreferenceCache {
     public Set<String> getCarBluetoothSet() {
         return mSharedPreferencesProxy.getObject(SPF_CAR_BLUETOOTH_LIST, new TypeToken<Set<String>>() {
         }, new HashSet<>());
-    }
-
-    @Nullable
-    public Car getCar(String bluetoothMac) {
-        return mSharedPreferencesProxy.getObject(bluetoothMac, Car.class, null);
-    }
-
-    public void addCar(String bluetoothMac, Car car) {
-        final Set<String> bluetoothList = getCarBluetoothSet();
-        bluetoothList.add(bluetoothMac);
-        setCarBluetoothSet(bluetoothList);
-        mSharedPreferencesProxy.putObject(bluetoothMac, car);
     }
 
     public void setAutoDisarmEnabled(boolean autoDisarmEnabled) {

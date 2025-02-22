@@ -23,11 +23,16 @@ import java.util.List;
 
 public class DetectCarBluetoothActivity extends AppCompatActivity {
 
+    private static final String XPENG_APP_BLUETOOTH_PREFIX = "XPWL";
+    private static final String ITURAN_BLUETOOTH_PREFIX = "4X-";
+
     private BluetoothDeviceAdapter adapter;
     private final List<BluetoothDeviceItem> bluetoothDevices = new ArrayList<>();
     private BluetoothAdapter bluetoothAdapter;
 
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
+
+
         @SuppressLint("MissingPermission")
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -35,12 +40,23 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device != null) {
-                    bluetoothDevices.add(new BluetoothDeviceItem(device.getName(), device.getAddress()));
-                    adapter.notifyItemInserted(bluetoothDevices.size() - 1);
+                    final String deviceName = device.getName();
+                    final String deviceAddress = device.getAddress();
+                    if(shouldExcludeDevice(deviceName)) {
+                        bluetoothDevices.add(new BluetoothDeviceItem(deviceName, deviceAddress));
+                        adapter.notifyItemInserted(bluetoothDevices.size() - 1);
+                    }
                 } else {
                     ILog.e("Failed to get device information - got null instead");
                 }
             }
+        }
+
+        // To prevent users's confusion -
+        // we're excluding Xpeng's app bluetooth component and Ituran's device.
+        private boolean shouldExcludeDevice(String deviceName) {
+            return deviceName.startsWith(XPENG_APP_BLUETOOTH_PREFIX) ||
+                    deviceName.startsWith(ITURAN_BLUETOOTH_PREFIX);
         }
     };
 

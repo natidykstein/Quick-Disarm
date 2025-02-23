@@ -83,7 +83,7 @@ public class Car implements Serializable {
     public String toStringExtended() {
         return "Car{" +
                 "mPhoneNumber='" + mPhoneNumber + '\'' +
-                "mBluetoothTrigger='" + mBluetoothTrigger + '\'' +
+                ", mBluetoothTrigger='" + mBluetoothTrigger + '\'' +
                 ", mLicensePlate='" + mLicensePlate + '\'' +
                 ", mStarlinkMac='" + mStarlinkMac + '\'' +
                 ", mStarlinkSerial=" + mStarlinkSerial +

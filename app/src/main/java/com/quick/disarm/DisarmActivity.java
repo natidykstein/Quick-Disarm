@@ -100,19 +100,15 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
         mDisarmButton = findViewById(R.id.disarm_button);
         mDisarmButton.setOnClickListener(v -> {
-            if (hasCarConfigured()) {
+            final Set<Car> carSet = PreferenceCache.get(DisarmActivity.this).getCarSet();
+            if (!carSet.isEmpty()) {
                 if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
                     Analytics.reportSelectButtonEvent("disarm_button", "Connect");
                     // PENDING: Allow selecting the car to which we want to connect and disarm
                     //  Currently we're taking the first car
-                    final String defaultCarBluetoothMac = PreferenceCache.get(this).getCarBluetoothSet().iterator().next();
-                    final Car car = PreferenceCache.get(this).getCar(defaultCarBluetoothMac);
-                    if (car != null) {
-                        ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
-                        connectToDevice(car);
-                    } else {
-                        ILog.e("Failed to find car for bluetooth: [" + defaultCarBluetoothMac + "]");
-                    }
+                    final Car car = carSet.iterator().next();
+                    ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
+                    connectToDevice(car);
                 } else {
                     Analytics.reportSelectButtonEvent("disarm_button", "Disarm");
                     StarlinkCommandDispatcher.get().dispatchDisarmCommand();
@@ -142,7 +138,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         // Refresh when getting back to the activity
         final Set<Car> carSet = PreferenceCache.get(this).getCarSet();
         final String carsSummaryText;
-        if (carSet != null) {
+        if (!carSet.isEmpty()) {
             final StringBuilder carPlates = new StringBuilder();
             // Add all cars license plates
             for (Car car : carSet) {
@@ -172,15 +168,6 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean hasCarConfigured() {
-        return !PreferenceCache.get(this).getCarBluetoothSet().isEmpty();
-    }
-
-    private Car getSelectedCar() {
-        final Set<Car> carSet = PreferenceCache.get(this).getCarSet();
-        return !carSet.isEmpty() ? carSet.iterator().next() : null;
     }
 
     private void askForRequiredPermissions() {

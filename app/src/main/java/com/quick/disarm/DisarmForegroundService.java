@@ -116,7 +116,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;
             ILog.d("Successfully disarmed device in " + duration + "ms");
-            Analytics.reportEvent("disarm_success", "duration", String.valueOf(duration));
+            Analytics.reportEvent("disarm_success", "duration", duration);
 
             // Log as an exception for increased visibility
             if (duration > TOLERABLE_DURATION_LIMIT) {

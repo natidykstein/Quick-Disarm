@@ -25,4 +25,10 @@ public class Analytics {
         bundle.putString(key, value);
         sFirebaseAnalytics.logEvent(eventName, bundle);
     }
+
+    public static void reportEvent(String eventName, String key, long value) {
+        final Bundle bundle = new Bundle();
+        bundle.putLong(key, value);
+        sFirebaseAnalytics.logEvent(eventName, bundle);
+    }
 }

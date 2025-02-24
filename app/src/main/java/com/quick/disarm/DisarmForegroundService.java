@@ -16,7 +16,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
-import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.Objects;
 
@@ -78,13 +77,14 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            final String carBluetoothMac = intent.getStringExtra(EXTRA_CONNECTED_CAR);
-            final Car connectedCar = PreferenceCache.get(this).getCar(carBluetoothMac);
+            final Car connectedCar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+                    intent.getSerializableExtra(EXTRA_CONNECTED_CAR, Car.class) :
+                    (Car) intent.getSerializableExtra(EXTRA_CONNECTED_CAR);
             if (connectedCar != null) {
-                ILog.d("Connecting to " + connectedCar + "'s Ituran...");
+                ILog.d("Connecting to Ituran of " + connectedCar + "...");
                 connectToDevice(connectedCar);
             } else {
-                ILog.logException(new RuntimeException("No car found for configured bluetooth device with address [" + carBluetoothMac + "]"));
+                ILog.logException(new RuntimeException("Failed to retrieve car from intent"));
                 mWakeLock.release();
             }
         } else {

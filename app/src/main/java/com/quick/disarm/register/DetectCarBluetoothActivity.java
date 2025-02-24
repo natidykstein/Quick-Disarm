@@ -23,8 +23,12 @@ import java.util.List;
 
 public class DetectCarBluetoothActivity extends AppCompatActivity {
 
-    private static final String XPENG_APP_BLUETOOTH_PREFIX = "XPWL";
-    private static final String ITURAN_BLUETOOTH_PREFIX = "4X-";
+    private static final String[] EXCLUDED_DEVICE_NAME_PREFIXES = new String[]{
+            // Known XPENG car's internal bluetooth device name prefixes
+            "XPWL-",
+            "XPED-",
+            // Ituran's bluetooth device name prefix
+            "4X-"};
 
     private BluetoothDeviceAdapter adapter;
     private final List<BluetoothDeviceItem> bluetoothDevices = new ArrayList<>();
@@ -54,12 +58,20 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             }
         }
 
-        // To prevent users mistakes -
-        // we're excluding no-name devices, Xpeng's app bluetooth component and Ituran's device.
+        // Help users select the correct bluetooth device -
+        // we're excluding no-name devices, Xpeng's internal bluetooth and Ituran's bluetooth.
         private boolean shouldExcludeDevice(String deviceName) {
-            return deviceName == null ||
-                    deviceName.startsWith(XPENG_APP_BLUETOOTH_PREFIX) ||
-                    deviceName.startsWith(ITURAN_BLUETOOTH_PREFIX);
+            if (deviceName == null) {
+                return true;
+            }
+
+            for (String excludedPrefix : EXCLUDED_DEVICE_NAME_PREFIXES) {
+                if (deviceName.startsWith(excludedPrefix)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     };
 

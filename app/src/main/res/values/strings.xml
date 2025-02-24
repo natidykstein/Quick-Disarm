@@ -34,6 +34,7 @@
     <string name="discovering_device">Discovering device…</string>
     <string name="reading_random">Reading random…</string>
     <string name="disarm">DISARM</string>
+    <string name="device_must_be_protected">Device must be protected with a password, PIN, pattern, or any other type of secure lock screen</string>
     <string name="bluetooth_not_supported_on_device">Bluetooth is not supported on this device</string>
     <string name="car_license_plate">Car License Plate</string>
     <string name="failed_connecting_to_device">Failed to connect to device</string>

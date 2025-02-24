@@ -76,6 +76,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         final Toolbar toolbar = findViewById(R.id.toolbar_disarm);
         setSupportActionBar(toolbar);
 
+        if(!Utils.isDeviceSecure(this)) {
+            Toast.makeText(this, R.string.bluetooth_not_supported_on_device, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         // Initialize Bluetooth adapter
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();

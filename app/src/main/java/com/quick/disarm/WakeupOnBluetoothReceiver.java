@@ -12,6 +12,7 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import com.quick.disarm.infra.ILog;
+import com.quick.disarm.infra.Utils;
 import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.Set;
@@ -34,6 +35,11 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                         getConnectedCarByBluetoothTrigger(device.getAddress(), configuredCars);
                 if (connectedCar != null) {
                     ILog.d("Found car by triggered bluetooth: " + connectedCar);
+
+                    if (!Utils.isDeviceSecure(context)) {
+                        ILog.logException(new RuntimeException("Device is not secured"));
+                        return;
+                    }
 
                     boolean autoDisarmEnabled = PreferenceCache.get(context).isAutoDisarmEnabled();
                     if (autoDisarmEnabled) {

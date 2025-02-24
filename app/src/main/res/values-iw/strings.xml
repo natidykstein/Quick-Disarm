@@ -5,6 +5,7 @@
     <string name="please_select_your_car_s_bluetooth">אנא בחר את הבלוטות׳ של מכוניתך:</string>
     <string name="device_name">שם מכשיר</string>
     <string name="device_address">כתובת מכשיר</string>
+    <string name="device_recommended">[מומלץ]</string>
     <string name="car_license_plate">מס׳ רכב</string>
     <string name="phone_number_hint">מספר טלפון</string>
     <string name="ituran_code_4_digits_hint">קוד איתוראן(4 ספרות)</string>

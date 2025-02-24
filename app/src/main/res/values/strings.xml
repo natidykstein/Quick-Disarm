@@ -5,6 +5,7 @@
     <string name="please_select_your_car_s_bluetooth">Please select your car\'s bluetooth</string>
     <string name="device_name">Device Name</string>
     <string name="device_address">Device Address</string>
+    <string name="device_recommended">[Recommended]</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="license_plate_is_required">License plate is required</string>
     <string name="phone_number_is_required">Phone number is required</string>

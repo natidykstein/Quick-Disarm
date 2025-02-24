@@ -23,6 +23,7 @@ import java.util.List;
 
 public class DetectCarBluetoothActivity extends AppCompatActivity {
 
+    private static final String XPENG_BLUETOOTH_DEFAULT_NAME = "XPENGMotor";
     private static final String[] EXCLUDED_DEVICE_NAME_PREFIXES = new String[]{
             // Known XPENG car's internal bluetooth device name prefixes
             "XPWL-",
@@ -44,9 +45,12 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device != null) {
-                    final String deviceName = device.getName();
+                    String deviceName = device.getName();
                     final String deviceAddress = device.getAddress();
                     if (!shouldExcludeDevice(deviceName)) {
+                        if (deviceName.equals(XPENG_BLUETOOTH_DEFAULT_NAME)) {
+                            deviceName += " " + context.getString(R.string.device_recommended);
+                        }
                         bluetoothDevices.add(new BluetoothDeviceItem(deviceName, deviceAddress));
                         adapter.notifyItemInserted(bluetoothDevices.size() - 1);
                     } else {

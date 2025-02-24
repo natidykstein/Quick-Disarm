@@ -77,7 +77,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         setSupportActionBar(toolbar);
 
         if(!Utils.isDeviceSecure(this)) {
-            Toast.makeText(this, R.string.bluetooth_not_supported_on_device, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.device_must_be_protected, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }

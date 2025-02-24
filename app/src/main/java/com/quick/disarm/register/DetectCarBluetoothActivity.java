@@ -36,8 +36,6 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
 
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
-
-
         @SuppressLint("MissingPermission")
         @Override
         public void onReceive(Context context, Intent intent) {

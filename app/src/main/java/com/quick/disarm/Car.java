@@ -1,14 +1,22 @@
 package com.quick.disarm;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 public class Car implements Serializable {
+    @SerializedName(value="phoneNumber", alternate={"n"})
     private final String mPhoneNumber;
+    @SerializedName(value="bluetoothTrigger", alternate={"o"})
     private final String mBluetoothTrigger;
+    @SerializedName(value="licensePlate", alternate={"p"})
     private final String mLicensePlate;
+    @SerializedName(value="starlinkMac", alternate={"q"})
     private final String mStarlinkMac;
+    @SerializedName(value="starlinkSerial", alternate={"r"})
     private final int mStarlinkSerial;
+    @SerializedName(value="ituranCode", alternate={"s"})
     private final String mIturanCode;
 
     public Car(String phoneNumber, String bluetoothTrigger, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {

@@ -197,7 +197,6 @@ public class RegisterActivity extends AppCompatActivity {
         final String bluetoothTrigger = getIntent().getStringExtra(EXTRA_BLUETOOTH_TRIGGER);
         final Car car = new Car(phoneNumber, bluetoothTrigger, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
         PreferenceCache.get(this).addCar(car);
-        ILog.d("Added " + car);
 
         // PENDING: For now logging as exception for increased visibility
         ILog.logException(new RuntimeException("Successfully registered " + car.toStringExtended()));

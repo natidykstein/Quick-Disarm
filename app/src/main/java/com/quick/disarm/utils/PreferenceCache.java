@@ -85,6 +85,12 @@ public class PreferenceCache {
 
     public void addCar(Car car) {
         final Set<Car> carSet = getCarSet();
+        if(carSet.remove(car)) {
+            ILog.d("Replacing existing car with " + car);
+        } else {
+            ILog.d("Adding new " + car);
+        }
+
         carSet.add(car);
         mSharedPreferencesProxy.putObject(SPF_CAR_SET, carSet);
     }

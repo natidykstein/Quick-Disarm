@@ -17,12 +17,11 @@ import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
 
-import java.util.Objects;
-
 /**
  * @noinspection deprecation
  */
 public class DisarmForegroundService extends IntentService implements DisarmStateListener {
+    private static final long MAX_RETRIES = 3;
     private static final long TOLERABLE_DURATION_LIMIT = 0; // TimeUnit.SECONDS.toMillis(1);
 
     public static final String EXTRA_CONNECTED_CAR = "com.quick.disarm.extra.CONNEXTED_CAR";
@@ -32,6 +31,8 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     private BluetoothAdapter mBluetoothAdapter;
     private PowerManager.WakeLock mWakeLock;
     private long mDisarmStartTime;
+    private Car mConnectedCar;
+    private int mAttemptNumber;
 
     public DisarmForegroundService() {
         super("DisarmForegroundService");
@@ -74,30 +75,41 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         // Get the start time as measured by the bluetooth broadcast receiver
         mDisarmStartTime = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
 
+        mConnectedCar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+                intent.getSerializableExtra(EXTRA_CONNECTED_CAR, Car.class) :
+                (Car) intent.getSerializableExtra(EXTRA_CONNECTED_CAR);
+
+        if (mConnectedCar != null) {
+            attemptToDisarm();
+        } else {
+            ILog.logException(new RuntimeException("Failed to retrieve car from intent"));
+            cleanUpAndStop();
+        }
+    }
+
+    private void attemptToDisarm() {
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            final Car connectedCar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                    intent.getSerializableExtra(EXTRA_CONNECTED_CAR, Car.class) :
-                    (Car) intent.getSerializableExtra(EXTRA_CONNECTED_CAR);
-            if (connectedCar != null) {
-                ILog.d("Connecting to Ituran of " + connectedCar + "...");
-                connectToDevice(connectedCar);
-            } else {
-                ILog.logException(new RuntimeException("Failed to retrieve car from intent"));
-                mWakeLock.release();
-            }
+            ILog.d("Connecting to Ituran of " + mConnectedCar + "...");
+            connectToDevice();
         } else {
             ILog.logException(new RuntimeException("Bluetooth is not supported on this device"));
-            mWakeLock.release();
+            cleanUpAndStop();
         }
     }
 
     @SuppressLint("MissingPermission")
-    private void connectToDevice(Car connectedCar) {
-        final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, connectedCar);
-        final BluetoothDevice device = getStarlinkDevice(connectedCar.getStarlinkMac());
-        device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+    private void connectToDevice() {
+        if (++mAttemptNumber < MAX_RETRIES) {
+            ILog.d("Attempting to connect to bluetooth gatt device...(attempt=" + mAttemptNumber + ")");
+            final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, mConnectedCar);
+            final BluetoothDevice device = getStarlinkDevice(mConnectedCar.getStarlinkMac());
+            device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+        } else {
+            ILog.logException(new RuntimeException("Exceeded number of max attempts to disarm device"));
+            cleanUpAndStop();
+        }
     }
 
     private BluetoothDevice getStarlinkDevice(String starlinkMac) {
@@ -106,13 +118,31 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
 
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
-        if (Objects.requireNonNull(newState, "DisarmStatus new state must not be null") == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
+        if (newState == DisarmStatus.READY_TO_CONNECT) {
+            String errorMessage = "Unknown error";
+            switch (currentState) {
+                case CONNECTING_TO_DEVICE:
+                    errorMessage = "Failed to connect to bluetooth gatt device- retrying...";
+                    break;
+                case DEVICE_DISCOVERED:
+                    errorMessage = "Failed to read random from device- retrying...";
+                    break;
+                case RANDOM_READ_SUCCESSFULLY:
+                    errorMessage = "Failed to disarm device - retrying...";
+                    break;
+            }
+
+            ILog.logException(new RuntimeException(errorMessage));
+            connectToDevice();
+        }
+
+        // Random read successfully - attempt to disarm
+        if (newState == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
             ILog.d("Attempting to disarm...");
             StarlinkCommandDispatcher.get().dispatchDisarmCommand();
         }
-        if (currentState == DisarmStatus.CONNECTING_TO_DEVICE && newState == DisarmStatus.READY_TO_CONNECT) {
-            ILog.e("Failed to connect to device");
-        }
+
+        // Disarm successful
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;
             ILog.d("Successfully disarmed device in " + duration + "ms");
@@ -125,9 +155,14 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
                 ILog.logException(new RuntimeException("Disarm device took longer than expected: " + duration + "ms"));
             }
 
-            mWakeLock.release();
-            stopForeground(true);
-            stopSelf();
+            cleanUpAndStop();
         }
+    }
+
+    private void cleanUpAndStop() {
+        ILog.d("Cleaning up and closing...");
+        mWakeLock.release();
+        stopForeground(true);
+        stopSelf();
     }
 }

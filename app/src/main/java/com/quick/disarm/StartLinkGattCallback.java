@@ -44,13 +44,14 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            ILog.d( "Discovering device completed - attempting to read random...");
+            ILog.d("Discovering device completed - attempting to read random...");
             setDisarmStatus(DisarmStateListener.DisarmStatus.DEVICE_DISCOVERED);
             StarlinkCommandDispatcher.get().init(gatt, mConnectedCar);
             StarlinkCommandDispatcher.get().dispatchReadRandomCommand();
         } else {
-            ILog.w( "onServicesDiscovered received status: " + status);
+            ILog.w("onServicesDiscovered received status: " + status);
             setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
+            cleanup(gatt);
         }
     }
 
@@ -58,16 +59,17 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
-                ILog.d( "Random read successfully");
+                ILog.d("Random read successfully");
                 StarlinkCommandDispatcher.get().setRandom(value);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.RANDOM_READ_SUCCESSFULLY);
             } else {
-                ILog.w( "Got characteristic read from unknown uuid: " + characteristic.getUuid());
+                ILog.w("Got characteristic read from unknown uuid: " + characteristic.getUuid());
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
             }
         } else {
-            ILog.w( "onCharacteristicRead received status: " + status);
+            ILog.e("onCharacteristicRead received status: " + status);
             setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
+            cleanup(gatt);
         }
     }
 
@@ -75,14 +77,15 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         if (characteristic.getUuid().equals(SEND_COMMAND_UUID)) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                ILog.d( "Write successful for send command");
+                ILog.d("Write successful for send command");
                 setDisarmStatus(DisarmStateListener.DisarmStatus.DISARMED);
             } else {
-                ILog.logException(new RuntimeException("Write failed on characteristic: " + characteristic.getUuid() + " with status " + status));
+                ILog.e("Write failed for send command. Status = " + status);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
+                cleanup(gatt);
             }
         } else {
-            ILog.w( "Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status " + status);
+            ILog.w("Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status " + status);
         }
     }
 
@@ -98,7 +101,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
 
     // PENDING: To we really need to do anything here?
     private void internalOnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
-        ILog.d( "internalOnCharacteristicChanged()");
+        ILog.d("internalOnCharacteristicChanged()");
 
         if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
             StarlinkCommandDispatcher.get().setRandom(value);
@@ -108,7 +111,17 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
             final byte resultByte = value.length == 1 ? value[0] : characteristic.getValue()[0];
 
             // PENDING: Update with result after writing value
-            ILog.d( "Got result with value " + resultByte);
+            ILog.d("Got result with value " + resultByte);
+        }
+    }
+
+    private void cleanup(BluetoothGatt gatt) {
+        if (gatt != null) {
+            ILog.d("Closing bluetooth gatt connection...");
+            gatt.disconnect();
+            gatt.close();
+        } else {
+            ILog.e("Bluetooth gatt is null - can't cleanup");
         }
     }
 

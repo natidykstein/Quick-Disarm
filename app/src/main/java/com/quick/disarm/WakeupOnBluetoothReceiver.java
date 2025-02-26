@@ -117,7 +117,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     private Car getConnectedCarByBluetoothTrigger(String connectedDeviceAddress, Set<Car> configuredCars) {
         ILog.d("Checking if connected to car's bluetooth...");
         return configuredCars.stream()
-                .filter(car -> connectedDeviceAddress.equals(car.getBluetoothTrigger()))
+                .filter(car -> connectedDeviceAddress.equals(car.getTriggerBluetoothAddress()))
                 .findFirst()
                 .orElse(null);
     }

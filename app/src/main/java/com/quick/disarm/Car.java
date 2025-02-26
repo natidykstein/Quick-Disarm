@@ -8,8 +8,10 @@ import java.util.Objects;
 public class Car implements Serializable {
     @SerializedName(value="phoneNumber", alternate={"n"})
     private final String mPhoneNumber;
-    @SerializedName(value="bluetoothTrigger", alternate={"o"})
-    private final String mBluetoothTrigger;
+    @SerializedName("triggerBluetoothName")
+    private final String mTriggerBluetoothName;
+    @SerializedName(value="triggerBluetoothAddress", alternate={"o", "bluetoothTrigger"})
+    private final String mTriggerBluetoothAddress;
     @SerializedName(value="licensePlate", alternate={"p"})
     private final String mLicensePlate;
     @SerializedName(value="starlinkMac", alternate={"q"})
@@ -19,9 +21,10 @@ public class Car implements Serializable {
     @SerializedName(value="ituranCode", alternate={"s"})
     private final String mIturanCode;
 
-    public Car(String phoneNumber, String bluetoothTrigger, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
+    public Car(String phoneNumber, String triggerBluetoothName, String triggerBluetoothAddress, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
         mPhoneNumber = phoneNumber;
-        mBluetoothTrigger = bluetoothTrigger;
+        mTriggerBluetoothName = triggerBluetoothName;
+        mTriggerBluetoothAddress = triggerBluetoothAddress;
         mLicensePlate = licensePlate;
         mStarlinkMac = convertToValidMac(starlinkMac);
         mStarlinkSerial = starLinkSerial;
@@ -43,8 +46,12 @@ public class Car implements Serializable {
         return mPhoneNumber;
     }
 
-    public String getBluetoothTrigger() {
-        return mBluetoothTrigger;
+    public String getTriggerBluetoothName() {
+        return mTriggerBluetoothName;
+    }
+
+    public String getTriggerBluetoothAddress() {
+        return mTriggerBluetoothAddress;
     }
 
     public String getLicensePlate() {
@@ -74,7 +81,7 @@ public class Car implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Car car = (Car) o;
+        final Car car = (Car) o;
         return Objects.equals(mLicensePlate, car.mLicensePlate);
     }
 
@@ -85,17 +92,18 @@ public class Car implements Serializable {
 
     @Override
     public String toString() {
-        return "Car(" + mLicensePlate + ")";
+        return "Car [" + mLicensePlate + "]";
     }
 
     public String toStringExtended() {
         return "Car{" +
-                "mPhoneNumber='" + mPhoneNumber + '\'' +
-                ", mBluetoothTrigger='" + mBluetoothTrigger + '\'' +
-                ", mLicensePlate='" + mLicensePlate + '\'' +
-                ", mStarlinkMac='" + mStarlinkMac + '\'' +
-                ", mStarlinkSerial=" + mStarlinkSerial +
-                ", mIturanCode='" + mIturanCode + '\'' +
+                "phoneNumber='" + mPhoneNumber + '\'' +
+                ", triggerBluetoothName='" + mTriggerBluetoothName + '\'' +
+                ", triggerBluetoothAddress='" + mTriggerBluetoothAddress + '\'' +
+                ", licensePlate='" + mLicensePlate + '\'' +
+                ", starlinkMac='" + mStarlinkMac + '\'' +
+                ", starlinkSerial=" + mStarlinkSerial +
+                ", ituranCode='" + mIturanCode + '\'' +
                 '}';
     }
 }

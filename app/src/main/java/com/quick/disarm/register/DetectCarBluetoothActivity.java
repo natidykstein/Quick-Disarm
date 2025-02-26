@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.quick.disarm.Analytics;
 import com.quick.disarm.R;
+import com.quick.disarm.ReportAnalytics;
 import com.quick.disarm.infra.ILog;
 
 import java.util.ArrayList;
@@ -85,11 +85,11 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         adapter = new BluetoothDeviceAdapter(bluetoothDevices, view -> {
             final BluetoothDeviceItem device = (BluetoothDeviceItem) view.getTag();
-            Analytics.reportSelectButtonEvent("select_bluetooth", device.getName());
+            ReportAnalytics.reportSelectButtonEvent("select_bluetooth", device.getName());
 
             final Intent startRegisterActivityIntent = new Intent(DetectCarBluetoothActivity.this, RegisterActivity.class);
-            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_BLUETOOTH_TRIGGER_NAME, device.getName());
-            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_BLUETOOTH_TRIGGER, device.getAddress());
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_TRIGGER_BLUETOOTH_NAME, device.getName());
+            startRegisterActivityIntent.putExtra(RegisterActivity.EXTRA_TRIGGER_BLUETOOTH_ADDRESS, device.getAddress());
             startActivity(startRegisterActivityIntent);
             finish();
         });

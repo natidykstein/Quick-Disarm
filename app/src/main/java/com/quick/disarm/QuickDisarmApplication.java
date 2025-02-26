@@ -10,8 +10,6 @@ import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.network.volley.IturanServerAPI;
 import com.quick.disarm.utils.PreferenceCache;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public final class QuickDisarmApplication extends Application {
@@ -41,7 +39,7 @@ public final class QuickDisarmApplication extends Application {
         final String carBluetooth = !carBluetoothSet.isEmpty() ? carBluetoothSet.iterator().next() : null;
         final Car anyCar = carBluetooth != null ? PreferenceCache.get(context).getCar(carBluetooth) : null;
         if (anyCar != null) {
-            if (anyCar.getBluetoothTrigger() == null) {
+            if (anyCar.getTriggerBluetoothAddress() == null) {
                 ILog.d("Detected old cars data - performing cleanup...");
                 // Reset old cars data
                 PreferenceCache.get(this).removeOldCarsData();
@@ -50,7 +48,7 @@ public final class QuickDisarmApplication extends Application {
     }
 
     public static void initAnalytics(Context context) {
-        Analytics.init(FirebaseAnalytics.getInstance(context));
+        ReportAnalytics.init(FirebaseAnalytics.getInstance(context));
 
         final Car anyCar = getAnyCar(context);
         if (anyCar != null) {
@@ -63,21 +61,18 @@ public final class QuickDisarmApplication extends Application {
                 ILog.w("Got a car without a phone number - due to an older app version");
             }
 
-            final Set<String> carBluetoothSet = PreferenceCache.get(context).getCarBluetoothSet();
-            final Set<String> licensePlates = new HashSet<>();
-            for (String bt : carBluetoothSet) {
-                final Car car = PreferenceCache.get(context).getCar(bt);
-                if (car != null) {
-                    licensePlates.add(car.getLicensePlate());
-                } else {
-                    ILog.e("Failed to get car for configured bt address: " + bt);
-                }
+            // Add license plates and their corresponding bluetooth trigger as custom user property
+            final Set<Car> carSet = PreferenceCache.get(context).getCarSet();
+            final StringBuilder licensePlates = new StringBuilder();
+            for(Car car: carSet) {
+                final String licensePlate = car.getFormattedLicensePlate();
+                final String triggerBluetoothName = car.getTriggerBluetoothName();
+                licensePlates.append("[").append(licensePlate).append(":").append(triggerBluetoothName).append(", ");
             }
 
-            // Add license plates as custom user property
-            final String licensePlateSetAsString = Arrays.toString(licensePlates.toArray());
-            FirebaseAnalytics.getInstance(context).setUserProperty(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlateSetAsString);
-            FirebaseCrashlytics.getInstance().setCustomKey(QuickDisarmAnalytics.USER_PROPERTY_LICENSE_PLATES, licensePlateSetAsString);
+            final String licensePlatesAsString = licensePlates.substring(0, licensePlates.length()-2);
+            FirebaseAnalytics.getInstance(context).setUserProperty(AnalyticsConstants.USER_PROPERTY_LICENSE_PLATES, licensePlatesAsString);
+            FirebaseCrashlytics.getInstance().setCustomKey(AnalyticsConstants.USER_PROPERTY_LICENSE_PLATES, licensePlatesAsString);
         } else {
             ILog.d("No configured cars found - not setting analytics users id");
         }

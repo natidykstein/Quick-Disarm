@@ -23,10 +23,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.VolleyError;
-import com.quick.disarm.Analytics;
 import com.quick.disarm.Car;
 import com.quick.disarm.QuickDisarmApplication;
 import com.quick.disarm.R;
+import com.quick.disarm.ReportAnalytics;
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.Utils;
 import com.quick.disarm.infra.network.volley.AppResponse;
@@ -38,8 +38,8 @@ import com.quick.disarm.model.SerializationAnswer;
 import com.quick.disarm.utils.PreferenceCache;
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String EXTRA_BLUETOOTH_TRIGGER_NAME = "com.quick.disarm.extra.BLUETOOTH_TRIGGER_NAME";
-    public static final String EXTRA_BLUETOOTH_TRIGGER = "com.quick.disarm.extra.BLUETOOTH_TRIGGER_MAC";
+    public static final String EXTRA_TRIGGER_BLUETOOTH_NAME = "com.quick.disarm.extra.TRIGGER_BLUETOOTH_NAME";
+    public static final String EXTRA_TRIGGER_BLUETOOTH_ADDRESS = "com.quick.disarm.extra.TRIGGER_BLUETOOTH_ADDRESS";
 
     private static final int SMS_PERMISSION_CODE = 2000;
 
@@ -86,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupPage1() {
         final Button buttonNext1 = findViewById(R.id.buttonNext1);
         buttonNext1.setOnClickListener(view -> {
-            Analytics.reportSelectButtonEvent("next_page1", "Next");
+            ReportAnalytics.reportSelectButtonEvent("next_page1", "Next");
             licensePlate = editTextLicensePlate.getText().toString().trim();
             phoneNumber = editTextPhoneNumber.getText().toString().trim();
             ituranCode = editTextIturanCode.getText().toString().trim();
@@ -159,7 +159,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupPage2() {
         buttonNext2.setOnClickListener(view -> {
-            Analytics.reportSelectButtonEvent("next_page2", "Next");
+            ReportAnalytics.reportSelectButtonEvent("next_page2", "Next");
             verificationCode = editTextVerificationCode.getText().toString().trim();
             if (validatePage2()) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -178,8 +178,11 @@ public class RegisterActivity extends AppCompatActivity {
                 final SerializationAnswer answer = response.getData();
                 ILog.d("Got from server: " + answer);
                 if (ModelUtils.isValid(answer.getReturnError())) {
-                    saveDriverData(answer.getStarlinkMacAddress(), answer.getStarlinkSerial());
-                    showPage3();
+                    final String triggerBluetoothName = getIntent().getStringExtra(EXTRA_TRIGGER_BLUETOOTH_NAME);
+                    final String triggerBluetoothAddress = getIntent().getStringExtra(EXTRA_TRIGGER_BLUETOOTH_ADDRESS);
+
+                    saveDriverData(triggerBluetoothName, triggerBluetoothAddress, answer.getStarlinkMacAddress(), answer.getStarlinkSerial());
+                    showPage3(triggerBluetoothName, triggerBluetoothAddress);
                 } else {
                     editTextVerificationCode.setError(answer.getReturnError());
                 }
@@ -193,9 +196,8 @@ public class RegisterActivity extends AppCompatActivity {
         IturanServerAPI.get().validateSmsVerificationCode(licensePlate, phoneNumber, verificationCode, serializationResponseListener, serializationResponseListener);
     }
 
-    private void saveDriverData(String starlinkMacAddress, int starlinkSerial) {
-        final String bluetoothTrigger = getIntent().getStringExtra(EXTRA_BLUETOOTH_TRIGGER);
-        final Car car = new Car(phoneNumber, bluetoothTrigger, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
+    private void saveDriverData(String triggerBluetoothName, String triggerBluetoothAddress, String starlinkMacAddress, int starlinkSerial) {
+        final Car car = new Car(phoneNumber, triggerBluetoothName, triggerBluetoothAddress, licensePlate, starlinkMacAddress, starlinkSerial, ituranCode);
         PreferenceCache.get(this).addCar(car);
 
         // PENDING: For now logging as exception for increased visibility
@@ -210,10 +212,10 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    private void showPage3() {
+    private void showPage3(String triggerBluetoothName, String triggerBluetoothAddress) {
         page2.setVisibility(View.GONE);
         page3.setVisibility(View.VISIBLE);
-        final String carBluetoothName = getIntent().getStringExtra(EXTRA_BLUETOOTH_TRIGGER_NAME);
+        final String carBluetoothName = getIntent().getStringExtra(EXTRA_TRIGGER_BLUETOOTH_NAME);
         textViewSummary.setText(getString(R.string.summary_message, carBluetoothName, licensePlate, phoneNumber));
 
         // Update analytics after a successful car registration
@@ -221,7 +223,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         final Button buttonDone = findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(v -> {
-            Analytics.reportSelectButtonEvent("done", "Done");
+            ReportAnalytics.reportSelectButtonEvent("done", "Done");
             finish();
         });
     }

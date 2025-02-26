@@ -98,7 +98,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
         final Button addCarButton = findViewById(R.id.add_car_button);
         addCarButton.setOnClickListener(v -> {
-            Analytics.reportSelectButtonEvent("add_car", "Add car");
+            ReportAnalytics.reportSelectButtonEvent("add_car", "Add car");
 
             final Intent startDetectActivityIntent = new Intent(DisarmActivity.this, DetectCarBluetoothActivity.class);
             startActivity(startDetectActivityIntent);
@@ -109,14 +109,14 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             final Set<Car> carSet = PreferenceCache.get(DisarmActivity.this).getCarSet();
             if (!carSet.isEmpty()) {
                 if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
-                    Analytics.reportSelectButtonEvent("disarm_button", "Connect");
+                    ReportAnalytics.reportSelectButtonEvent("disarm_button", "Connect");
                     // PENDING: Allow selecting the car to which we want to connect and disarm
                     //  Currently we're taking the first car
                     final Car car = carSet.iterator().next();
                     ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
                     connectToDevice(car);
                 } else {
-                    Analytics.reportSelectButtonEvent("disarm_button", "Disarm");
+                    ReportAnalytics.reportSelectButtonEvent("disarm_button", "Disarm");
                     StarlinkCommandDispatcher.get().dispatchDisarmCommand();
                 }
             } else {

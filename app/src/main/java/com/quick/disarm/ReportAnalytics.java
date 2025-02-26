@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-public class Analytics {
+public class ReportAnalytics {
 
     private static FirebaseAnalytics sFirebaseAnalytics;
 
@@ -16,17 +16,11 @@ public class Analytics {
         final Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, id);
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, QuickDisarmAnalytics.CONTENT_BUTTON);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsConstants.CONTENT_BUTTON);
         sFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
-    public static void reportEvent(String eventName, String key, String value) {
-        final Bundle bundle = new Bundle();
-        bundle.putString(key, value);
-        sFirebaseAnalytics.logEvent(eventName, bundle);
-    }
-
-    public static void reportEvent(String eventName, String key, long value) {
+    public static void reportEventWithMetric(String eventName, String key, long value) {
         final Bundle bundle = new Bundle();
         bundle.putLong(key, value);
         sFirebaseAnalytics.logEvent(eventName, bundle);

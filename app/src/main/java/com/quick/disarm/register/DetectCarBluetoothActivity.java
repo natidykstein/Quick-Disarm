@@ -49,8 +49,11 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
                         if (deviceName.equals(XPENG_BLUETOOTH_DEFAULT_NAME)) {
                             deviceName += " " + context.getString(R.string.device_recommended);
                         }
-                        bluetoothDevices.add(new BluetoothDeviceItem(deviceName, deviceAddress));
-                        adapter.notifyItemInserted(bluetoothDevices.size() - 1);
+                        final BluetoothDeviceItem deviceItem = new BluetoothDeviceItem(deviceName, deviceAddress);
+                        if (!bluetoothDevices.contains(deviceItem)) {
+                            bluetoothDevices.add(deviceItem);
+                            adapter.notifyItemInserted(bluetoothDevices.size() - 1);
+                        }
                     } else {
                         ILog.d("Skipping excluded device: " + deviceName);
                     }

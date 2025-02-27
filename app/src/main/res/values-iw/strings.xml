@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">Quick Disarm</string>
-
     <!-- Registration pages -->
     <string name="please_select_your_car_s_bluetooth">אנא בחר את הבלוטות׳ של מכוניתך:</string>
     <string name="device_name">שם מכשיר</string>

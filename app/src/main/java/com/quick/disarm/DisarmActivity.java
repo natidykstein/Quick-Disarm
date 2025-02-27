@@ -272,13 +272,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
             switch (newStatus) {
                 case READY_TO_CONNECT:
                     if (currentStatus != DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
-                        if(currentStatus == DisarmStatus.CONNECTING_TO_DEVICE) {
-                            ILog.e("Failed to connect to device");
-                            Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
-                        } else {
-                            ILog.e("Failed to disarm device");
-                            Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
-                        }
+                        final String errorMessage =
+                                getString(currentStatus == DisarmStatus.CONNECTING_TO_DEVICE ?
+                                        R.string.failed_to_connect_to_device : R.string.failed_to_disarm_device);
+
+                        ILog.e(errorMessage);
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
                     }
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);

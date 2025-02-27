@@ -42,11 +42,11 @@ import java.util.Set;
  *  5. Display list of currently configured cars (read-only) + selecting current car for manual disarm
  *  8. Allow deleting a car
  *  9. Add new google maps activity for tracking a car
- *  10. Show toast when performing disarm (allow setting this by the user to on/off)
  *  11. Allow user to select between 3 levels of authentication - App, device or none.
  *      App(most secured) - Each app open will require an authentication
  *      Device(normal/default) - The device must be unlocked to allow disarming
  *      None(less secured) - Car can be disarmed in the background while the device is locked
+ *  12. Make manual disarming in one click (instead of 2) (reuse foreground service?)
  * <p>
  */
 @SuppressLint("MissingPermission")
@@ -76,7 +76,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         final Toolbar toolbar = findViewById(R.id.toolbar_disarm);
         setSupportActionBar(toolbar);
 
-        if(!Utils.isDeviceSecure(this)) {
+        if (!Utils.isDeviceSecure(this)) {
             Toast.makeText(this, R.string.device_must_be_protected, Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -108,17 +108,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         mDisarmButton.setOnClickListener(v -> {
             final Set<Car> carSet = PreferenceCache.get(DisarmActivity.this).getCarSet();
             if (!carSet.isEmpty()) {
-                if (mDisarmStatus == DisarmStatus.READY_TO_CONNECT) {
-                    ReportAnalytics.reportSelectButtonEvent("disarm_button", "Connect");
-                    // PENDING: Allow selecting the car to which we want to connect and disarm
-                    //  Currently we're taking the first car
-                    final Car car = carSet.iterator().next();
-                    ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
-                    connectToDevice(car);
-                } else {
-                    ReportAnalytics.reportSelectButtonEvent("disarm_button", "Disarm");
-                    StarlinkCommandDispatcher.get().dispatchDisarmCommand();
-                }
+                ReportAnalytics.reportSelectButtonEvent("disarm_button", "Disarm");
+                // PENDING: Allow selecting the car to which we want to connect and disarm
+                //  Currently we're taking the first car
+                final Car car = carSet.iterator().next();
+                ILog.d("Attempting to manually disarm car: " + car.toStringExtended());
+                connectToDevice(car);
             } else {
                 Toast.makeText(DisarmActivity.this, R.string.please_add_a_car_first, Toast.LENGTH_SHORT).show();
             }
@@ -130,9 +125,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void handlePermissions() {
-        if (hasRequiredPermissionsAndBluetoothEnabled()) {
-            setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
-        } else {
+        if (!hasRequiredPermissionsAndBluetoothEnabled()) {
             askForRequiredPermissions();
         }
     }
@@ -277,34 +270,31 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
     private void setDisarmStatus(final DisarmStatus currentStatus, final DisarmStatus newStatus) {
         mDisarmStatus = newStatus;
+
         runOnUiThread(() -> {
             switch (newStatus) {
                 case READY_TO_CONNECT:
-                    if (currentStatus == DisarmStatus.CONNECTING_TO_DEVICE) {
-                        ILog.e("Failed to connect to device");
-                        Toast.makeText(this, R.string.failed_connecting_to_device, Toast.LENGTH_SHORT).show();
+                    if (currentStatus != DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
+                        ILog.e("Failed to disarm device");
+                        Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
                     }
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);
-                    mDisarmButton.setText(R.string.connect);
+                    mDisarmButton.setText(R.string.disarm);
                     break;
                 case CONNECTING_TO_DEVICE:
-                    mDisarmButton.setEnabled(false);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mDisarmButton.setText(R.string.connecting_to_device);
                     break;
                 case DEVICE_CONNECTED:
-                    mDisarmButton.setEnabled(false);
-                    mProgressBar.setVisibility(View.VISIBLE);
                     mDisarmButton.setText(R.string.discovering_device);
                     break;
                 case DEVICE_DISCOVERED:
                     mDisarmButton.setText(R.string.reading_random);
                     break;
                 case RANDOM_READ_SUCCESSFULLY:
-                    mDisarmButton.setEnabled(true);
-                    mProgressBar.setVisibility(View.GONE);
-                    mDisarmButton.setText(R.string.disarm);
+                    mDisarmButton.setText(R.string.disarming);
+                    break;
             }
         });
     }

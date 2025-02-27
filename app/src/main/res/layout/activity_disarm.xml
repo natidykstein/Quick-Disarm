@@ -27,8 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:enabled="false"
-        android:text="@string/connecting_to_device" />
+        android:text="@string/disarm" />
 
     <Button
         android:id="@+id/add_car_button"
@@ -45,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/disarm_button"
         android:layout_centerHorizontal="true"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:visibility="visible" />
 
     <TextView

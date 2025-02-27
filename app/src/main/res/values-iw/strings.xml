@@ -32,12 +32,12 @@
     <string name="added_cars">רכבים: %1$s</string>
     <string name="no_cars_added_yet">אין רכבים שמורים</string>
     <string name="failed_to_acquire_missing_permissions">אנא הוסף את ההרשאות החסרות</string>
-    <string name="connect">התחבר</string>
+    <string name="disarm">נטרל</string>
     <string name="connecting_to_device">מתחבר…</string>
     <string name="discovering_device">סורק את המכשיר…</string>
     <string name="reading_random">קורא נתונים…</string>
-    <string name="disarm">נטרל</string>
-    <string name="failed_connecting_to_device">לא ניתן להתחבר למכשיר</string>
+    <string name="disarming">מנטרל...</string>
+    <string name="failed_to_disarm_device">הניטרול נכשל</string>
 
     <!-- Settings Activity -->
     <string name="settings_title">הגדרות</string>

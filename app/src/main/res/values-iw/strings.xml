@@ -36,7 +36,8 @@
     <string name="connecting_to_device">מתחבר…</string>
     <string name="discovering_device">סורק את המכשיר…</string>
     <string name="reading_random">קורא נתונים…</string>
-    <string name="disarming">מנטרל...</string>
+    <string name="disarming">מנטרל…</string>
+    <string name="failed_to_connect_to_device">חיבור נכשל…</string>
     <string name="failed_to_disarm_device">הניטרול נכשל</string>
 
     <!-- Settings Activity -->

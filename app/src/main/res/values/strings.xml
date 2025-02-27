@@ -37,6 +37,7 @@
     <string name="device_must_be_protected">Device must be protected with a secure lock screen</string>
     <string name="bluetooth_not_supported_on_device">Bluetooth is not supported on this device</string>
     <string name="car_license_plate">Car License Plate</string>
+    <string name="failed_to_connect_to_device">Failed to connect to device</string>
     <string name="failed_to_disarm_device">Failed to disarm device</string>
 
     <!-- Settings Activity -->

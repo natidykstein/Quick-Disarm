@@ -66,8 +66,6 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     private Button mDisarmButton;
     private ProgressBar mProgressBar;
 
-    private DisarmStatus mDisarmStatus;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -269,20 +267,25 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void setDisarmStatus(final DisarmStatus currentStatus, final DisarmStatus newStatus) {
-        mDisarmStatus = newStatus;
 
         runOnUiThread(() -> {
             switch (newStatus) {
                 case READY_TO_CONNECT:
                     if (currentStatus != DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
-                        ILog.e("Failed to disarm device");
-                        Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
+                        if(currentStatus == DisarmStatus.CONNECTING_TO_DEVICE) {
+                            ILog.e("Failed to connect to device");
+                            Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
+                        } else {
+                            ILog.e("Failed to disarm device");
+                            Toast.makeText(this, R.string.failed_to_disarm_device, Toast.LENGTH_SHORT).show();
+                        }
                     }
                     mDisarmButton.setEnabled(true);
                     mProgressBar.setVisibility(View.GONE);
                     mDisarmButton.setText(R.string.disarm);
                     break;
                 case CONNECTING_TO_DEVICE:
+                    mDisarmButton.setEnabled(false);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mDisarmButton.setText(R.string.connecting_to_device);
                     break;

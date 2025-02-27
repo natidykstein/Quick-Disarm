@@ -142,7 +142,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                 carPlates.append(car.getFormattedLicensePlate()).append(", ");
             }
             // Remove trailing comma
-            carsSummaryText = getString(R.string.added_cars, carPlates.substring(0, carPlates.length() - 2));
+            carsSummaryText = carPlates.substring(0, carPlates.length() - 2);
         } else {
             carsSummaryText = getString(R.string.no_cars_added_yet);
         }

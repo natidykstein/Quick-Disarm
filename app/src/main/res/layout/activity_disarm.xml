@@ -54,6 +54,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        tools:text="Number of configured cars: 0" />
+        android:textStyle="bold"
+        tools:text="123-45-678" />
 
 </RelativeLayout>

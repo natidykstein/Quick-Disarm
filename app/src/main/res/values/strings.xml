@@ -26,11 +26,10 @@
     <string name="bluetooth_must_be_enabled">Bluetooth must be enabled!</string>
     <string name="add_car">Add car</string>
     <string name="please_add_a_car_first">Please add a car first</string>
-    <string name="added_cars">Cars: %1$s</string>
     <string name="no_cars_added_yet">No cars added yet</string>
     <string name="failed_to_acquire_missing_permissions">Please add the missing permissions</string>
     <string name="disarm">DISARM</string>
-    <string name="connecting_to_device">Connecting to device…</string>
+    <string name="connecting_to_device">Connecting…</string>
     <string name="discovering_device">Discovering device…</string>
     <string name="reading_random">Reading random…</string>
     <string name="disarming">Disarming…</string>

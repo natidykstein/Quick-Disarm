@@ -136,12 +136,6 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             connectToDevice();
         }
 
-        // Random read successfully - attempt to disarm
-        if (newState == DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
-            ILog.d("Attempting to disarm...");
-            StarlinkCommandDispatcher.get().dispatchDisarmCommand();
-        }
-
         // Disarm successful
         if (newState == DisarmStatus.DISARMED) {
             final long duration = System.currentTimeMillis() - mDisarmStartTime;

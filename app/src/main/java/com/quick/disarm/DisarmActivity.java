@@ -271,7 +271,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
         runOnUiThread(() -> {
             switch (newStatus) {
                 case READY_TO_CONNECT:
-                    if (currentStatus != DisarmStatus.RANDOM_READ_SUCCESSFULLY) {
+                    if (currentStatus != DisarmStatus.DISARMED) {
                         final String errorMessage =
                                 getString(currentStatus == DisarmStatus.CONNECTING_TO_DEVICE ?
                                         R.string.failed_to_connect_to_device : R.string.failed_to_disarm_device);
@@ -296,6 +296,12 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                     break;
                 case RANDOM_READ_SUCCESSFULLY:
                     mDisarmButton.setText(R.string.disarming);
+                    break;
+                case DISARMED:
+                    mDisarmButton.setEnabled(true);
+                    mDisarmButton.setText(R.string.disarm);
+                    mProgressBar.setVisibility(View.GONE);
+                    Toast.makeText(this, R.string.disarm_successful, Toast.LENGTH_SHORT).show();
                     break;
             }
         });

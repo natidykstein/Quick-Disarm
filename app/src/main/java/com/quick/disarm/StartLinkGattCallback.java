@@ -22,6 +22,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     private final DisarmStateListener mListener;
     private final Car mConnectedCar;
     private DisarmStateListener.DisarmStatus mDisarmStatus;
+    private boolean mCleaningUp;
 
     public StartLinkGattCallback(DisarmStateListener listener, Car connectedCar) {
         mListener = listener;
@@ -57,19 +58,19 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
 
     @Override
     public void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value, int status) {
-        if (status == BluetoothGatt.GATT_SUCCESS) {
-            if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
-                ILog.d("Random read successfully");
+        if (characteristic.getUuid().equals(RANDOM_NUMBER_UUID)) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                ILog.d("Random read successfully - attempting to disarm...");
                 StarlinkCommandDispatcher.get().setRandom(value);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.RANDOM_READ_SUCCESSFULLY);
+                StarlinkCommandDispatcher.get().dispatchDisarmCommand();
             } else {
-                ILog.w("Got characteristic read from unknown uuid: " + characteristic.getUuid());
+                ILog.e("Random read failed with status = " + status);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
+                cleanup(gatt);
             }
         } else {
-            ILog.e("onCharacteristicRead received status: " + status);
-            setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
-            cleanup(gatt);
+            ILog.w("Got characteristic read from unknown characteristic: " + characteristic.getUuid() + " with status = " + status);
         }
     }
 
@@ -77,15 +78,16 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         if (characteristic.getUuid().equals(SEND_COMMAND_UUID)) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                ILog.d("Write successful for send command");
+                ILog.d("Disarm successful");
                 setDisarmStatus(DisarmStateListener.DisarmStatus.DISARMED);
             } else {
-                ILog.e("Write failed for send command. Status = " + status);
+                ILog.e("Disarm failed with status = " + status);
                 setDisarmStatus(DisarmStateListener.DisarmStatus.READY_TO_CONNECT);
-                cleanup(gatt);
             }
+
+            cleanup(gatt);
         } else {
-            ILog.w("Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status " + status);
+            ILog.w("Got Write response on unsupported characteristic: " + characteristic.getUuid() + " with status = " + status);
         }
     }
 
@@ -116,6 +118,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     }
 
     private void cleanup(BluetoothGatt gatt) {
+        mCleaningUp = true;
         if (gatt != null) {
             ILog.d("Closing bluetooth gatt connection...");
             gatt.disconnect();
@@ -126,6 +129,11 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     }
 
     private void setDisarmStatus(DisarmStateListener.DisarmStatus disarmStatus) {
+        if (mCleaningUp) {
+            ILog.d("Ignoring disarm status change after cleanup: " + disarmStatus);
+            return;
+        }
+
         mListener.onDisarmStatusChange(mDisarmStatus, disarmStatus);
         mDisarmStatus = disarmStatus;
     }

@@ -6,19 +6,20 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Car implements Serializable {
-    @SerializedName(value="phoneNumber", alternate={"n"})
+    @SerializedName(value = "phoneNumber", alternate = {"n"})
     private final String mPhoneNumber;
     @SerializedName("triggerBluetoothName")
     private final String mTriggerBluetoothName;
-    @SerializedName(value="triggerBluetoothAddress", alternate={"o", "bluetoothTrigger"})
+    @SerializedName(value = "triggerBluetoothAddress", alternate = {"o", "bluetoothTrigger"})
     private final String mTriggerBluetoothAddress;
-    @SerializedName(value="licensePlate", alternate={"p"})
+    @SerializedName(value = "licensePlate", alternate = {"p"})
     private final String mLicensePlate;
-    @SerializedName(value="starlinkMac", alternate={"q"})
+    private transient String mFormattedLicensePlate;
+    @SerializedName(value = "starlinkMac", alternate = {"q"})
     private final String mStarlinkMac;
-    @SerializedName(value="starlinkSerial", alternate={"r"})
+    @SerializedName(value = "starlinkSerial", alternate = {"r"})
     private final int mStarlinkSerial;
-    @SerializedName(value="ituranCode", alternate={"s"})
+    @SerializedName(value = "ituranCode", alternate = {"s"})
     private final String mIturanCode;
 
     public Car(String phoneNumber, String triggerBluetoothName, String triggerBluetoothAddress, String licensePlate, String starlinkMac, int starLinkSerial, String ituranCode) {
@@ -59,10 +60,14 @@ public class Car implements Serializable {
     }
 
     public String getFormattedLicensePlate() {
-        final StringBuilder prettyPlate = new StringBuilder(mLicensePlate);
-        prettyPlate.insert(3, "-");
-        prettyPlate.insert(6, "-");
-        return prettyPlate.toString();
+        if (mFormattedLicensePlate == null || mFormattedLicensePlate.isEmpty()) {
+            final StringBuilder prettyPlate = new StringBuilder(mLicensePlate);
+            prettyPlate.insert(3, "-");
+            prettyPlate.insert(6, "-");
+            mFormattedLicensePlate = prettyPlate.toString();
+        }
+
+        return mFormattedLicensePlate;
     }
 
     public String getStarlinkMac() {
@@ -92,7 +97,7 @@ public class Car implements Serializable {
 
     @Override
     public String toString() {
-        return "Car [" + mLicensePlate + "]";
+        return "Car [" + getFormattedLicensePlate() + "]";
     }
 
     public String toStringExtended() {

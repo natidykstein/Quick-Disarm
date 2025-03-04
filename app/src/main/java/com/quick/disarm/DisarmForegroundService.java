@@ -83,7 +83,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             attemptToDisarm();
         } else {
             ILog.logException(new RuntimeException("Failed to retrieve car from intent"));
-            cleanUpAndStop();
+            stopService();
         }
     }
 
@@ -95,7 +95,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             connectToDevice();
         } else {
             ILog.logException(new RuntimeException("Bluetooth is not supported on this device"));
-            cleanUpAndStop();
+            stopService();
         }
     }
 
@@ -108,7 +108,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
             ILog.logException(new RuntimeException("Exceeded number of max attempts to disarm device"));
-            cleanUpAndStop();
+            stopService();
         }
     }
 
@@ -149,12 +149,12 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
                 ILog.logException(new RuntimeException("Disarm device took longer than expected: " + duration + "ms"));
             }
 
-            cleanUpAndStop();
+            stopService();
         }
     }
 
-    private void cleanUpAndStop() {
-        ILog.d("Cleaning up and closing...");
+    private void stopService() {
+        ILog.d("Stopping service...");
         mWakeLock.release();
         stopForeground(true);
         stopSelf();

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.quick.disarm.infra.ILog;
@@ -61,21 +63,28 @@ public final class QuickDisarmApplication extends Application {
                 ILog.w("Got a car without a phone number - due to an older app version");
             }
 
-            // Add license plates and their corresponding bluetooth trigger as custom user property
-            final Set<Car> carSet = PreferenceCache.get(context).getCarSet();
-            final StringBuilder licensePlates = new StringBuilder();
-            for(Car car: carSet) {
-                final String licensePlate = car.getFormattedLicensePlate();
-                final String triggerBluetoothName = car.getTriggerBluetoothName();
-                licensePlates.append("[").append(licensePlate).append(":").append(triggerBluetoothName).append(", ");
-            }
-
-            final String licensePlatesAsString = licensePlates.substring(0, licensePlates.length()-2);
+            final String licensePlatesAsString = getLicensePlatesAsString();
             FirebaseAnalytics.getInstance(context).setUserProperty(AnalyticsConstants.USER_PROPERTY_LICENSE_PLATES, licensePlatesAsString);
             FirebaseCrashlytics.getInstance().setCustomKey(AnalyticsConstants.USER_PROPERTY_LICENSE_PLATES, licensePlatesAsString);
         } else {
             ILog.d("No configured cars found - not setting analytics users id");
         }
+    }
+
+    // Add license plates and their corresponding bluetooth trigger as custom user property
+    @NonNull
+    private static String getLicensePlatesAsString() {
+        final Set<Car> carSet = PreferenceCache.get(context).getCarSet();
+        final StringBuilder licensePlates = new StringBuilder();
+        for(Car car: carSet) {
+            final String licensePlate = car.getFormattedLicensePlate();
+            final String triggerBluetoothName = car.getTriggerBluetoothName();
+            licensePlates.append("[").append(licensePlate).append(":").append(triggerBluetoothName).append(", ");
+        }
+        licensePlates.append("]");
+
+        final String licensePlatesAsString = licensePlates.substring(0, licensePlates.length()-2);
+        return licensePlatesAsString;
     }
 
     private static Car getAnyCar(Context context) {

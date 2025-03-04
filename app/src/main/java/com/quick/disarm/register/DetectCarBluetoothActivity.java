@@ -55,7 +55,9 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
                             adapter.notifyItemInserted(bluetoothDevices.size() - 1);
                         }
                     } else {
-                        ILog.d("Skipping excluded device: " + deviceName);
+                        if (deviceName != null) {
+                            ILog.d("Skipping excluded device: " + deviceName);
+                        }
                     }
                 } else {
                     ILog.e("Failed to get device information - got null instead");
@@ -64,7 +66,7 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         }
 
         // Help users select the correct bluetooth device -
-        // we're excluding no-name devices, Xpeng's internal bluetooth and Ituran's bluetooth.
+        // exclude no-name devices, Xpeng's internal bluetooth and Ituran's bluetooth.
         private boolean shouldExcludeDevice(String deviceName) {
             if (deviceName == null) {
                 return true;

@@ -97,7 +97,6 @@ import java.util.stream.Collectors;
  */
 public class Utils {
 
-    private static final String UTILS_SHARED_PREF_FILE_NAME = "gong_utils_shared_pref.db";
     private static final String SYSTEM_PROPERTY_HTTP_AGENT = "http.agent";
 
     private static final Gson sGson;
@@ -485,19 +484,8 @@ public class Utils {
     }
 
     public static int getScreenWidth(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            final WindowManager windowManager = context.getSystemService(WindowManager.class);
-            return windowManager.getCurrentWindowMetrics().getBounds().width();
-        } else {
-            final DisplayMetrics displayMetrics = new DisplayMetrics();
-            getMetricsBeforeApi30(context, displayMetrics);
-            return displayMetrics.widthPixels;
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static void getMetricsBeforeApi30(Context context, DisplayMetrics displayMetrics) {
-        getDisplay(context).getMetrics(displayMetrics);
+        final WindowManager windowManager = context.getSystemService(WindowManager.class);
+        return windowManager.getCurrentWindowMetrics().getBounds().width();
     }
 
     public static Drawable getTintedDrawable(Context context, Drawable sourceDrawable, @ColorRes int colorResource) {
@@ -993,28 +981,13 @@ public class Utils {
     }
 
     private static int getDisplaySizeForNavCheck(Context context, Boolean isLandscape) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            final WindowManager windowManager = context.getSystemService(WindowManager.class);
-            final Rect rect = windowManager.getCurrentWindowMetrics().getBounds();
-            return isLandscape ? rect.width() : rect.height();
-        } else {
-            final DisplayMetrics displayMetrics = new DisplayMetrics();
-            getMetricsBeforeApi30(context, displayMetrics);
-            return isLandscape ? displayMetrics.widthPixels : displayMetrics.heightPixels;
-        }
+        final WindowManager windowManager = context.getSystemService(WindowManager.class);
+        final Rect rect = windowManager.getCurrentWindowMetrics().getBounds();
+        return isLandscape ? rect.width() : rect.height();
     }
 
     private static Display getDisplay(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return context.getDisplay();
-        } else {
-            WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-
-            @SuppressWarnings("deprecation")
-            Display display = windowManager.getDefaultDisplay();
-
-            return display;
-        }
+        return context.getDisplay();
     }
 
     // This is the way Ituran is working - so we use it too

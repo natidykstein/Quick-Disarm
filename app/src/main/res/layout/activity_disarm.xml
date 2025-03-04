@@ -17,8 +17,9 @@
         android:id="@+id/textViewVersionName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar_disarm"
+        android:layout_margin="4dp"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:textSize="11sp"
         tools:text="1.0.0-beta" />
 

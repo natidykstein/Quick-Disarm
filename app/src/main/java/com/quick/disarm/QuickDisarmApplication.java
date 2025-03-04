@@ -72,6 +72,7 @@ public final class QuickDisarmApplication extends Application {
     }
 
     // Add license plates and their corresponding bluetooth trigger as custom user property
+    // in the following format [123-45-67, 234-56-789...]
     @NonNull
     private static String getLicensePlatesAsString() {
         final Set<Car> carSet = PreferenceCache.get(context).getCarSet();
@@ -81,10 +82,13 @@ public final class QuickDisarmApplication extends Application {
             final String triggerBluetoothName = car.getTriggerBluetoothName();
             licensePlates.append("[").append(licensePlate).append(":").append(triggerBluetoothName).append(", ");
         }
+
+        // Delete trailing ", "
+        licensePlates.delete(licensePlates.lastIndexOf(","), licensePlates.length());
+        // Add closing "]"
         licensePlates.append("]");
 
-        final String licensePlatesAsString = licensePlates.substring(0, licensePlates.length()-2);
-        return licensePlatesAsString;
+        return licensePlates.toString();
     }
 
     private static Car getAnyCar(Context context) {

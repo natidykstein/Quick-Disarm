@@ -64,23 +64,23 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
                 }
             }
         }
+    };
 
-        // Help users select the correct bluetooth device -
-        // exclude no-name devices, Xpeng's internal bluetooth and Ituran's bluetooth.
-        private boolean shouldExcludeDevice(String deviceName) {
-            if (deviceName == null) {
+    // Help users select the correct bluetooth device -
+    // exclude no-name devices, Xpeng's internal bluetooth and Ituran's bluetooth.
+    public static boolean shouldExcludeDevice(String deviceName) {
+        if (deviceName == null) {
+            return true;
+        }
+
+        for (String excludedPrefix : EXCLUDED_DEVICE_NAME_PREFIXES) {
+            if (deviceName.startsWith(excludedPrefix)) {
                 return true;
             }
-
-            for (String excludedPrefix : EXCLUDED_DEVICE_NAME_PREFIXES) {
-                if (deviceName.startsWith(excludedPrefix)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
-    };
+
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

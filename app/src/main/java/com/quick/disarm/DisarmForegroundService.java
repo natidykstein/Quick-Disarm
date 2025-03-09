@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
@@ -24,7 +23,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     private static final long MAX_RETRIES = 3;
     private static final long TOLERABLE_DURATION_LIMIT = 0; // TimeUnit.SECONDS.toMillis(1);
 
-    public static final String EXTRA_CONNECTED_CAR = "com.quick.disarm.extra.CONNEXTED_CAR";
+    public static final String EXTRA_CONNECTED_CAR = "com.quick.disarm.extra.CONNECTED_CAR";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
     private static final int NOTIFICATION_ID = 1;
 
@@ -47,7 +46,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     }
 
     @Override
-    protected void onHandleIntent(@NonNull Intent intent) {
+    protected void onHandleIntent(Intent intent) {
         ILog.d("Starting onHandleIntent...");
 
         // Create the notification channel if needed
@@ -133,6 +132,8 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             }
 
             ILog.logException(new RuntimeException(errorMessage));
+
+            // Retry
             connectToDevice();
         }
 
@@ -146,7 +147,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
 
             // Log as an exception for increased visibility
             if (duration > TOLERABLE_DURATION_LIMIT) {
-                ILog.logException(new RuntimeException("Disarm device took longer than expected: " + duration + "ms"));
+                ILog.logException(new RuntimeException("Disarm device took longer than expected: " + duration + "ms on attempt " + mAttemptNumber));
             }
 
             stopService();

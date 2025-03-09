@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.Utils;
+import com.quick.disarm.register.DetectCarBluetoothActivity;
 import com.quick.disarm.utils.PreferenceCache;
 
 import java.util.Set;
@@ -27,6 +28,11 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
         if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null) {
+                if (DetectCarBluetoothActivity.shouldExcludeDevice(device.getName())) {
+                    // We can safety skip this device and keep our logs clean
+                    return;
+                }
+
                 ILog.d("Connected to " + getLoggedString(device));
 
                 final Set<Car> configuredCars = PreferenceCache.get(context).getCarSet();
@@ -60,6 +66,10 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
         } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null) {
+                if (DetectCarBluetoothActivity.shouldExcludeDevice(device.getName())) {
+                    // We can safety skip this device and keep our logs clean
+                    return;
+                }
                 ILog.d("Detected bluetooth disconnected from " + getLoggedString(device));
             }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {

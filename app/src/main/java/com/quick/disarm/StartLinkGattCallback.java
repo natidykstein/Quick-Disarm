@@ -34,7 +34,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothGatt.STATE_CONNECTED) {
             setDisarmStatus(DisarmStateListener.DisarmStatus.DEVICE_CONNECTED);
-            ILog.d("Connected to device's GATT server");
+            ILog.d("Connected to device's GATT server - starting device discovery...");
             gatt.discoverServices();
         } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
             ILog.d("Disconnected from GATT server");
@@ -45,7 +45,7 @@ public class StartLinkGattCallback extends BluetoothGattCallback {
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            ILog.d("Discovering device completed - attempting to read random...");
+            ILog.d("Device discovery successful - attempting to read random...");
             setDisarmStatus(DisarmStateListener.DisarmStatus.DEVICE_DISCOVERED);
             StarlinkCommandDispatcher.get().init(gatt, mConnectedCar);
             StarlinkCommandDispatcher.get().dispatchReadRandomCommand();

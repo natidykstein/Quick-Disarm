@@ -51,8 +51,6 @@ public class StarlinkCommandDispatcher {
         mDeviceUuid = Utils.getDeviceUuid(QuickDisarmApplication.getAppContext());
 
         initCharacteristics();
-
-        ILog.d("Initialized StarlinkCommandDispatcher for " + mConnectedCar);
     }
 
     private void initCharacteristics() {
@@ -71,9 +69,7 @@ public class StarlinkCommandDispatcher {
             initCharacteristics();
         }
         if (mRandomCharacteristic != null) {
-            if (mGatt.readCharacteristic(mRandomCharacteristic)) {
-                ILog.d("Started reading device random...");
-            } else {
+            if (!mGatt.readCharacteristic(mRandomCharacteristic)) {
                 ILog.e("Failed to read device random - readCharacteristic returned false");
             }
         } else {

@@ -40,7 +40,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                 final Car connectedCar =
                         getConnectedCarByBluetoothTrigger(device.getAddress(), configuredCars);
                 if (connectedCar != null) {
-                    ILog.d("Found car by triggered bluetooth: " + connectedCar);
+                    ILog.d("Detected triggered bluetooth for " + connectedCar);
 
                     if (!Utils.isDeviceSecure(context)) {
                         ILog.logException(new RuntimeException("Device is not secured"));

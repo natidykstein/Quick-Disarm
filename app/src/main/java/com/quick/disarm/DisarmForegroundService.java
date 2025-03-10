@@ -100,7 +100,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
 
     @SuppressLint("MissingPermission")
     private void connectToDevice() {
-        if (++mAttemptNumber < MAX_RETRIES) {
+        if (++mAttemptNumber <= MAX_RETRIES) {
             ILog.d("Attempting to connect to bluetooth gatt device...(attempt=" + mAttemptNumber + ")");
             final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, mConnectedCar);
             final BluetoothDevice device = getStarlinkDevice(mConnectedCar.getStarlinkMac());

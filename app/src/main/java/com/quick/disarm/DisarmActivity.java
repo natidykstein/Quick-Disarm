@@ -233,7 +233,7 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
                     grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                 ILog.d("Got required permissions");
                 if (hasRequiredPermissionsAndBluetoothEnabled()) {
-                    setDisarmStatus(DisarmStatus.READY_TO_CONNECT, DisarmStatus.READY_TO_CONNECT);
+                    ILog.d("Bluetooth enabled");
                 }
             } else {
                 final String errorMessage = getString(R.string.failed_to_acquire_missing_permissions);
@@ -267,16 +267,18 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
     }
 
     private void setDisarmStatus(final DisarmStatus currentStatus, final DisarmStatus newStatus) {
-
         runOnUiThread(() -> {
             switch (newStatus) {
                 case READY_TO_CONNECT:
                     if (currentStatus != DisarmStatus.DISARMED) {
+                        final String logErrorMessage =
+                                currentStatus == DisarmStatus.CONNECTING_TO_DEVICE ?
+                                        "Failed to connect to device" : "Failed to disarm device";
+                        ILog.e(logErrorMessage + " - showing error message");
+
                         final String errorMessage =
                                 getString(currentStatus == DisarmStatus.CONNECTING_TO_DEVICE ?
                                         R.string.failed_to_connect_to_device : R.string.failed_to_disarm_device);
-
-                        ILog.e(errorMessage);
                         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
                     }
                     mDisarmButton.setEnabled(true);

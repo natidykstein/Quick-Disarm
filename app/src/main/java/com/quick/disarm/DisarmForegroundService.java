@@ -118,13 +118,16 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     @Override
     public void onDisarmStatusChange(DisarmStatus currentState, DisarmStatus newState) {
         if (newState == DisarmStatus.READY_TO_CONNECT) {
-            String errorMessage = "Unknown error";
+            String errorMessage = "Unknown error - retrying...";
             switch (currentState) {
                 case CONNECTING_TO_DEVICE:
-                    errorMessage = "Failed to connect to bluetooth gatt device- retrying...";
+                    errorMessage = "Failed to connect to bluetooth gatt device - retrying...";
+                    break;
+                case DEVICE_CONNECTED:
+                    errorMessage = "Failed to discover device services - retrying...";
                     break;
                 case DEVICE_DISCOVERED:
-                    errorMessage = "Failed to read random from device- retrying...";
+                    errorMessage = "Failed to read random from device - retrying...";
                     break;
                 case RANDOM_READ_SUCCESSFULLY:
                     errorMessage = "Failed to disarm device - retrying...";

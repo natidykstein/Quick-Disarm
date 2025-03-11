@@ -90,7 +90,6 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter != null) {
-            ILog.d("Connecting to Ituran of " + mConnectedCar + "...");
             connectToDevice();
         } else {
             ILog.logException(new RuntimeException("Bluetooth is not supported on this device"));
@@ -101,12 +100,12 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     @SuppressLint("MissingPermission")
     private void connectToDevice() {
         if (++mAttemptNumber <= MAX_RETRIES) {
-            ILog.d("Attempting to connect to bluetooth gatt device...(attempt=" + mAttemptNumber + ")");
+            ILog.d("Attempting to disarm device for " + mConnectedCar + "...(attempt=" + mAttemptNumber + ")");
             final StartLinkGattCallback bluetoothGattCallback = new StartLinkGattCallback(this, mConnectedCar);
             final BluetoothDevice device = getStarlinkDevice(mConnectedCar.getStarlinkMac());
             device.connectGatt(this, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
-            ILog.logException(new RuntimeException("Exceeded number of max attempts to disarm device"));
+            ILog.logException(new RuntimeException("Exceeded number of max attempts to disarm device (" + MAX_RETRIES + ")"));
             stopService();
         }
     }
@@ -121,6 +120,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
             String errorMessage = "Unknown error - retrying...";
             switch (currentState) {
                 case CONNECTING_TO_DEVICE:
+                    // PENDING: Do we really want to retry when failing to connect?
                     errorMessage = "Failed to connect to bluetooth gatt device - retrying...";
                     break;
                 case DEVICE_CONNECTED:

@@ -70,7 +70,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
                     // We can safety skip this device and keep our logs clean
                     return;
                 }
-                ILog.d("Detected bluetooth disconnected from " + getLoggedString(device));
+                ILog.d("Disconnected from " + getLoggedString(device));
             }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             ILog.d("Device booted");

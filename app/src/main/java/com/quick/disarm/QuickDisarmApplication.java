@@ -72,7 +72,7 @@ public final class QuickDisarmApplication extends Application {
     }
 
     // Add license plates and their corresponding bluetooth trigger as custom user property
-    // in the following format [123-45-67, 234-56-789...]
+    // in the following format [123-45-67:trigger1, 234-56-789:trigger2...]
     @NonNull
     private static String getLicensePlatesAsString() {
         final Set<Car> carSet = PreferenceCache.get(context).getCarSet();

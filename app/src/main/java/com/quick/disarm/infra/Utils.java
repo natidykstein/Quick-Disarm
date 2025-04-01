@@ -54,6 +54,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -603,7 +604,7 @@ public class Utils {
     }
 
     public static boolean hasPermission(Context context, String permission) {
-        return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static Animation animateBlinking(int duration) {

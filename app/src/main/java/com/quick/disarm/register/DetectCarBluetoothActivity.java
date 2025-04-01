@@ -1,5 +1,6 @@
 package com.quick.disarm.register;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.quick.disarm.R;
 import com.quick.disarm.ReportAnalytics;
 import com.quick.disarm.infra.ILog;
+import com.quick.disarm.infra.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,19 +106,24 @@ public class DetectCarBluetoothActivity extends AppCompatActivity {
         final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(bluetoothReceiver, filter);
 
-        // Initialize Bluetooth adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
         startDiscovery();
     }
 
     @SuppressLint("MissingPermission")
     private void startDiscovery() {
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            ILog.d("Starting bluetooth discovery...");
-            bluetoothAdapter.startDiscovery();
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            ILog.e("Bluetooth not supported/enabled on device - finishing activity...");
+            finish();
         } else {
-            ILog.e("Bluetooth device not enabled");
+            if (Utils.hasPermission(this, Manifest.permission.BLUETOOTH_SCAN)) {
+                ILog.d("Starting bluetooth discovery...");
+                bluetoothAdapter.startDiscovery();
+            } else {
+                ILog.e("BLUETOOTH_SCAN permissions is missing - finishing activity...");
+                finish();
+            }
         }
     }
 

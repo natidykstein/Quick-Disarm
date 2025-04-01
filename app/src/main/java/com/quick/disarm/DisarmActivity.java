@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
 import com.quick.disarm.infra.Utils;
@@ -196,15 +195,11 @@ public class DisarmActivity extends AppCompatActivity implements DisarmStateList
 
     private boolean hasRequiredPermissions() {
         for (String permission : REQUIRED_PERMISSIONS) {
-            if (!hasPermission(permission)) {
+            if (!Utils.hasPermission(this, permission)) {
                 return false;
             }
         }
         return true;
-    }
-
-    private boolean hasPermission(String permission) {
-        return ContextCompat.checkSelfPermission(DisarmActivity.this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void connectToDevice(Car car) {

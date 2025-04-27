@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.quick.disarm.infra.ILog;
+import com.quick.disarm.infra.Utils;
 
 /**
  * @noinspection deprecation
@@ -22,10 +23,12 @@ import com.quick.disarm.infra.ILog;
 public class DisarmForegroundService extends IntentService implements DisarmStateListener {
     private static final long MAX_RETRIES = 3;
     private static final long TOLERABLE_DURATION_LIMIT = 0; // TimeUnit.SECONDS.toMillis(1);
+    private static final int NOTIFICATION_ID = 1;
+
 
     public static final String EXTRA_CONNECTED_CAR = "com.quick.disarm.extra.CONNECTED_CAR";
     public static final String EXTRA_START_TIME = "com.quick.disarm.extra.START_TIME";
-    private static final int NOTIFICATION_ID = 1;
+    public static final String EXTRA_NOTIFICATION_DISPLAY_TIME = "com.quick.disarm.extra.NOTIFICATION_DISPLAY_TIME";
 
     private BluetoothAdapter mBluetoothAdapter;
     private PowerManager.WakeLock mWakeLock;
@@ -49,6 +52,11 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
     protected void onHandleIntent(Intent intent) {
         ILog.d("Starting onHandleIntent...");
 
+        if(intent==null) {
+            ILog.e("Got null intent - ignoring");
+            return;
+        }
+
         // Create the notification channel if needed
         WakeupOnBluetoothReceiver.createNotificationChannel(this);
 
@@ -71,12 +79,18 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
         // to be on the safe side we limit it to 10 seconds
         mWakeLock.acquire(10_000);
 
-        // Get the start time as measured by the bluetooth broadcast receiver
-        mDisarmStartTime = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
+        if(intent.hasExtra(EXTRA_START_TIME)) {
+            // Get the start time as measured by the bluetooth broadcast receiver
+            mDisarmStartTime = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
+        } else {
+            final long notificationDisplayTime = intent.getLongExtra(EXTRA_NOTIFICATION_DISPLAY_TIME, 0);
+            ILog.d("User tapped disarm notification that was displayed " + Utils.formatDuration(System.currentTimeMillis() - notificationDisplayTime) + " ago");
+            mDisarmStartTime = System.currentTimeMillis();
+        }
 
-        mConnectedCar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+        mConnectedCar = intent != null ? Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
                 intent.getSerializableExtra(EXTRA_CONNECTED_CAR, Car.class) :
-                (Car) intent.getSerializableExtra(EXTRA_CONNECTED_CAR);
+                (Car) intent.getSerializableExtra(EXTRA_CONNECTED_CAR) : null;
 
         if (mConnectedCar != null) {
             attemptToDisarm();

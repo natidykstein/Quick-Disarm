@@ -104,7 +104,7 @@ public class WakeupOnBluetoothReceiver extends BroadcastReceiver {
     private PendingIntent getPendingIntent(Context context, Car connectedCar) {
         final Intent startJobIntentReceiver = new Intent(context, DisarmForegroundService.class);
         startJobIntentReceiver.putExtra(DisarmForegroundService.EXTRA_CONNECTED_CAR, connectedCar);
-        startJobIntentReceiver.putExtra(DisarmForegroundService.EXTRA_START_TIME, System.currentTimeMillis());
+        startJobIntentReceiver.putExtra(DisarmForegroundService.EXTRA_NOTIFICATION_DISPLAY_TIME, System.currentTimeMillis());
         return PendingIntent.getForegroundService(context, 0, startJobIntentReceiver, PendingIntent.FLAG_IMMUTABLE);
     }
 

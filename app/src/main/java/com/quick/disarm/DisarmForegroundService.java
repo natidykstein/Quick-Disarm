@@ -148,7 +148,7 @@ public class DisarmForegroundService extends IntentService implements DisarmStat
                     break;
             }
 
-            ILog.logException(new RuntimeException(errorMessage));
+            ILog.e(errorMessage);
 
             // Retry
             connectToDevice();
